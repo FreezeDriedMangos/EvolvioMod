@@ -268,12 +268,16 @@ class Board{
       }
       pushMatrix();
       translate(400,80);
-      float apX = round((mouseX-400-x1)/46.0);
-      float apY = round((mouseY-80-y1)/46.0);
+      float apX = round((mouseX*WINDOW_SCALE()-400-x1)/46.0);
+      float apY = round((mouseY*WINDOW_SCALE()-80-y1)/46.0);
       selectedCreature.drawBrain(font,46,(int)apX,(int)apY);
       popMatrix();
     }
-    drawPopulationGraph(x1,x2,y1,y2);
+    
+    if(selectedCreature == null) {
+        drawPopulationGraph(x1,x2,y1,y2);
+    }
+    
     fill(0,0,0);
     textAlign(RIGHT);
     textFont(font,24);
@@ -418,8 +422,7 @@ class Board{
   private double getSeason(){
     return (year%1.0);
   }
-  private void drawThermometer(float x1, float y1, float w, float h, double prog, double min, double max,
-  color fillColor){
+  private void drawThermometer(float x1, float y1, float w, float h, double prog, double min, double max, color fillColor){
     noStroke();
     fill(0,0,0.2);
     rect(x1,y1,w,h);

@@ -1,13 +1,22 @@
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentListener;
+import java.awt.event.ComponentEvent;
+
+
 Board evoBoard;
 final int SEED = 51;
 final float NOISE_STEP_SIZE = 0.1;
 final int BOARD_WIDTH = 100;
 final int BOARD_HEIGHT = 100;
 
-final int WINDOW_WIDTH = 1920;
-final int WINDOW_HEIGHT = 1080;
+final int WINDOW_WIDTH = (int)(1920);  // sc
+final int WINDOW_HEIGHT = (int)(1080); // sc - scale change
+int INITIAL_WINDOW_HEIGHT = -1;
+final float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+//final float WINDOW_SCALE() = WINDOW_WIDTH/(width > 0 ? width : WINDOW_WIDTH);//0.5;
 
-final float SCALE_TO_FIX_BUG = 100;
+
+final float SCALE_TO_FIX_BUG = 100 * WINDOW_SCALE(); // sc (this one made button clicking work)
 final float GROSS_OVERALL_SCALE_FACTOR = ((float)WINDOW_HEIGHT)/BOARD_HEIGHT/SCALE_TO_FIX_BUG;
 
 final double TIME_STEP = 0.001;
@@ -28,16 +37,47 @@ float prevMouseY;
 boolean draggedFar = false;
 final String INITIAL_FILE_NAME = "PIC";
 
+float WINDOW_SCALE() {
+    try{
+        return (float)frame.getWidth() / (float)(WINDOW_WIDTH); // this magic number is the value of (float)frame.getWidth() / (float)WINDOW_WIDTH before any size changes are done. I'm not sure why this is happening
+    } catch (Exception e) { return 1; }
+}
+
 void setup() {
     colorMode(HSB,1.0);
     font = loadFont("Jygquip1-48.vlw");
-    size(WINDOW_WIDTH, WINDOW_HEIGHT);
+    
+    float initScale = 0.6;
+    size((int)(WINDOW_WIDTH*initScale), (int)(WINDOW_HEIGHT*initScale)); 
+    frame.setSize((int)(WINDOW_WIDTH*initScale), (int)(WINDOW_HEIGHT*initScale)); // sc 
+    
+    
+    // allow for resizing 
+    // also handle aspect ratio fixing
+    frame.setResizable(true);
+    frame.addComponentListener(new ComponentAdapter() {
+        int lastWidth = WINDOW_WIDTH;
+        int lastHeight = WINDOW_HEIGHT;
+        public void componentResized(ComponentEvent componentEvent) {
+            // make sure aspect ratio is correct
+            if(frame.getWidth() != lastWidth) {
+                frame.setSize(frame.getWidth(), (int)(frame.getWidth() / ASPECT_RATIO));
+            } else if (frame.getHeight() != lastHeight) {
+                frame.setSize((int)(frame.getHeight() * ASPECT_RATIO), frame.getHeight());
+            }
+            
+            lastWidth = frame.getWidth();
+            lastHeight = frame.getHeight();
+        }
+    });
+    
     evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, 
     ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
     resetZoom();
 }
 
 void draw() {
+    // Carykh's code
     for (int iteration = 0; iteration < evoBoard.playSpeed; iteration++) {
         evoBoard.iterate(TIME_STEP);
     }
@@ -47,12 +87,16 @@ void draw() {
     if (dragging == 1) {
         cameraX -= toWorldXCoordinate(mouseX, mouseY)-toWorldXCoordinate(prevMouseX, prevMouseY);
         cameraY -= toWorldYCoordinate(mouseX, mouseY)-toWorldYCoordinate(prevMouseX, prevMouseY);
-    } else if (dragging == 2) { //UGLY UGLY CODE.    Do not look at this
-        if (evoBoard.setMinTemperature(1.0-(mouseY-30)/660.0)) {
+    } else if (dragging == 2) { //UGLY UGLY CODE.    Do not look at this    // hate to break it to ya buddy, but I'm looking at it
+        int adjustedMouseY = (int)(mouseY / WINDOW_SCALE());
+        
+        if (evoBoard.setMinTemperature(1.0-(adjustedMouseY-30)/660.0)) {
             dragging = 3;
         }
     } else if (dragging == 3) {
-        if (evoBoard.setMaxTemperature(1.0-(mouseY-30)/660.0)) {
+        int adjustedMouseY = (int)(mouseY / WINDOW_SCALE());
+        
+        if (evoBoard.setMaxTemperature(1.0-(adjustedMouseY-30)/660.0)) {
             dragging = 2;
         }
     }
@@ -64,17 +108,18 @@ void draw() {
         cameraR = 0;
     }
     pushMatrix();
-    scale(GROSS_OVERALL_SCALE_FACTOR);
+    scale(GROSS_OVERALL_SCALE_FACTOR*WINDOW_SCALE()); // sc
     evoBoard.drawBlankBoard(SCALE_TO_FIX_BUG);
     translate(BOARD_WIDTH*0.5*SCALE_TO_FIX_BUG, BOARD_HEIGHT*0.5*SCALE_TO_FIX_BUG);
-    scale(zoom);
+    scale(zoom); 
     if (evoBoard.userControl && evoBoard.selectedCreature != null) {
         rotate(cameraR);
     }
     translate(-cameraX*SCALE_TO_FIX_BUG, -cameraY*SCALE_TO_FIX_BUG);
-    evoBoard.drawBoard(SCALE_TO_FIX_BUG, zoom, (int)toWorldXCoordinate(mouseX, mouseY), (int)toWorldYCoordinate(mouseX, mouseY));
+    evoBoard.drawBoard(SCALE_TO_FIX_BUG, zoom, (int)toWorldXCoordinate(mouseX/WINDOW_SCALE(), mouseY/WINDOW_SCALE()), (int)toWorldYCoordinate(mouseX/WINDOW_SCALE(), mouseY/WINDOW_SCALE())); // sc
     popMatrix();
-    evoBoard.drawUI(SCALE_TO_FIX_BUG, TIME_STEP, WINDOW_HEIGHT, 0, WINDOW_WIDTH, WINDOW_HEIGHT, font);
+    scale(WINDOW_SCALE()); // sc
+    evoBoard.drawUI(SCALE_TO_FIX_BUG, TIME_STEP, (int)(height/WINDOW_SCALE()), 0, (int)(width/WINDOW_SCALE()), (int)(height/WINDOW_SCALE()), font); //sc
 
     evoBoard.fileSave();
     prevMouseX = mouseX;
@@ -97,28 +142,34 @@ void mouseWheel(MouseEvent event) {
  * Does different things depending on where the mouse currently is
  */
 void mousePressed() {
+    int adjustedMouseX = (int)(mouseX/WINDOW_SCALE()); // sc
+    int adjustedMouseY = (int)(mouseY/WINDOW_SCALE()); // sc
+    
+    //int fheight = frame.getHeight();
+    //int fwidth = frame.getWidth();
+    
     // the board is drawn at size (WINDOW_HEIGHT x WINDOW_HEIGHT)
-    if (mouseX < WINDOW_HEIGHT) {
+    if (adjustedMouseX < WINDOW_HEIGHT) {
         // so if mouseX is less than WINDOW_HEIGHT, the mouse is on the board (aka overworld map)
         dragging = 1;
     } else {
         // otherwise it's on the menu ui
-        if (abs(mouseX-(WINDOW_HEIGHT+65)) <= 60 && abs(mouseY-147) <= 60 && evoBoard.selectedCreature != null) {
+        if (abs(adjustedMouseX-(WINDOW_HEIGHT+65)) <= 60 && abs(adjustedMouseY-147) <= 60 && evoBoard.selectedCreature != null) {
                 // TODO: figure out what button this is
                 cameraX = (float)evoBoard.selectedCreature.px;
                 cameraY = (float)evoBoard.selectedCreature.py;
                 zoom = 16;
-        } else if (mouseY >= 95 && mouseY < 135 && evoBoard.selectedCreature == null) {
-            if (mouseX >= WINDOW_HEIGHT+10 && mouseX < WINDOW_HEIGHT+230) {
+        } else if (adjustedMouseY >= 95 && adjustedMouseY < 135 && evoBoard.selectedCreature == null) { // TODO: figure out what this condition means
+            if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_HEIGHT+230) {
                 // reset zoom button
                 resetZoom();
-            } else if (mouseX >= WINDOW_HEIGHT+240 && mouseX < WINDOW_HEIGHT+460) {
+            } else if (adjustedMouseX >= WINDOW_HEIGHT+240 && adjustedMouseX < WINDOW_HEIGHT+460) {
                 // "Sort By" button
                 evoBoard.creatureRankMetric = (evoBoard.creatureRankMetric+1)%8;
             }
-        } else if (mouseY >= 570) {
-            float x = (mouseX-(WINDOW_HEIGHT+10));
-            float y = (mouseY-570);
+        } else if (adjustedMouseY >= 570) {
+            float x = (adjustedMouseX-(WINDOW_HEIGHT-30));
+            float y = (adjustedMouseY-570);
             boolean clickedOnLeft = (x%230 < 110);
             if (x >= 0 && x < 2*230 && y >= 0 && y < 4*50 && x%230 < 220 && y%50 < 40) {
                 int mX = (int)(x/230);
@@ -170,8 +221,8 @@ void mousePressed() {
                     }
                 }
             }
-        } else if (mouseX >= height+10 && mouseX < width-50 && evoBoard.selectedCreature == null) {
-            int listIndex = (mouseY-150)/70;
+        } else if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_WIDTH-50 && evoBoard.selectedCreature == null) {
+            int listIndex = (adjustedMouseY-150)/70;
             if (listIndex >= 0 && listIndex < evoBoard.LIST_SLOTS) {
                 evoBoard.selectedCreature = evoBoard.list[listIndex];
                 cameraX = (float)evoBoard.selectedCreature.px;
@@ -179,10 +230,10 @@ void mousePressed() {
                 zoom = 16;
             }
         }
-        if (mouseX >= width-50) {
+        if (adjustedMouseX >= WINDOW_WIDTH-50) {
             // The mouse clicked on the temperature bar
             
-            float toClickTemp = (mouseY-30)/660.0;
+            float toClickTemp = (adjustedMouseY-30)/660.0;
             float lowTemp = 1.0-evoBoard.getLowTempProportion();
             float highTemp = 1.0-evoBoard.getHighTempProportion();
             if (abs(toClickTemp-lowTemp) < abs(toClickTemp-highTemp)) {
@@ -197,7 +248,7 @@ void mousePressed() {
 
 void mouseReleased() {
     if (!draggedFar) {
-        if (mouseX < WINDOW_HEIGHT) { // DO NOT LOOK AT THIS CODE EITHER it is bad
+        if (mouseX/WINDOW_SCALE() < WINDOW_HEIGHT) { // DO NOT LOOK AT THIS CODE EITHER it is bad // It's cool, I'll fix it
             dragging = 1;
             float mX = toWorldXCoordinate(mouseX, mouseY);
             float mY = toWorldYCoordinate(mouseX, mouseY);

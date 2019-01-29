@@ -50,7 +50,7 @@ class Tile{
         fill(0,0,1,1);
       }
       textAlign(CENTER);
-      textFont(font,21);
+      textFont(font,/*21*/35*WINDOW_SCALE());
       text(nf((float)(100*foodLevel),0,2)+" yums",(posX+0.5)*scaleUp,(posY+0.3)*scaleUp);
       text("Clim: "+nf((float)(climateType),0,2),(posX+0.5)*scaleUp,(posY+0.6)*scaleUp);
       text("Food: "+nf((float)(foodType),0,2),(posX+0.5)*scaleUp,(posY+0.9)*scaleUp);
