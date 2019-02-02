@@ -3,14 +3,13 @@ package core.modAPI;
 import core.Board;
 import core.Tile;
 
-public interface TileAttribute {
+public interface TileAttribute<T> {
     
-    public void init(int x, int y, Board b, Tile t);
+    public void init(int x, int y, float stepSize, Board b, Tile t);
     
     public String getName();
-    public Object getValue();
-    public void setValue(Object v);
-    public Class getType();
+    public T getValue();
+    public void setValue(T v);
     
-    public void update(double lastUpdateTime, double updateTime, Tile t);
+    public void update(double lastUpdateTime, double updateTime, Tile t, Board b);
 }

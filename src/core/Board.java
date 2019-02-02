@@ -69,7 +69,7 @@ public class Board{
         float fertility = EvolvioMod.main.noise(x*stepSize*3,y*stepSize*3)*(1-bigForce)*5.0f+EvolvioMod.main.noise(x*stepSize*0.5f,y*stepSize*0.5f)*bigForce*5.0f-1.5f;
         float climateType = EvolvioMod.main.noise(x*stepSize*0.2f+10000,y*stepSize*0.2f+10000)*1.63f-0.4f;
         climateType = Math.min(Math.max(climateType,0),0.8f);
-        tiles[x][y] = new Tile(x,y,fertility,0,climateType,this);
+        tiles[x][y] = new Tile(x,y,fertility,0,climateType,this,stepSize);
       }
     }
     MIN_TEMPERATURE = min;
@@ -267,7 +267,7 @@ public class Board{
       EvolvioMod.main.text("Generation: "+selectedCreature.gen,10,475);
       EvolvioMod.main.text("Parents: "+selectedCreature.parents,10,500,210,255);
       EvolvioMod.main.text("Hue: "+EvolvioMod.main.nf((float)(selectedCreature.hue),0,2),10,550,210,255);
-      EvolvioMod.main.text("Mouth hue: "+EvolvioMod.main.nf((float)(selectedCreature.mouthHue),0,2),10,575,210,255);
+      EvolvioMod.main.text("Mouth hue: "+EvolvioMod.main.nf((float)(selectedCreature.secondaryHue),0,2),10,575,210,255);
       
       if(userControl){
     	  EvolvioMod.main.text("Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color"+
@@ -341,7 +341,7 @@ public class Board{
     if(tempChangeIntoThisFrame*tempChangeOutOfThisFrame <= 0){ // Temperature change flipped direction.
       for(int x = 0; x < boardWidth; x++){
         for(int y = 0; y < boardHeight; y++){
-          tiles[x][y].iterate();
+          tiles[x][y].update();
         }
       }
     }
@@ -379,8 +379,8 @@ public class Board{
               if(EvolvioMod.main.key == 'u') me.setHue(me.hue+0.02);
               if(EvolvioMod.main.key == 'j') me.setHue(me.hue-0.02);
               
-              if(EvolvioMod.main.key == 'i') me.setMouthHue(me.mouthHue+0.02);
-              if(EvolvioMod.main.key == 'k') me.setMouthHue(me.mouthHue-0.02);
+              if(EvolvioMod.main.key == 'i') me.setMouthHue(me.secondaryHue+0.02);
+              if(EvolvioMod.main.key == 'k') me.setMouthHue(me.secondaryHue-0.02);
               if(EvolvioMod.main.key == 'b'){
                 if(!wasPressingB){
                   me.reproduce(MANUAL_BIRTH_SIZE, timeStep);
@@ -420,7 +420,7 @@ public class Board{
     double temperatureRange = MAX_TEMPERATURE-MIN_TEMPERATURE;
     return MIN_TEMPERATURE+temperatureRange*0.5-temperatureRange*0.5*Math.cos(theTime*2*Math.PI);
   }
-   double getGrowthOverTimeRange(double startTime, double endTime){
+   public double getGrowthOverTimeRange(double startTime, double endTime){
     double temperatureRange = MAX_TEMPERATURE-MIN_TEMPERATURE;
     double m = MIN_TEMPERATURE+temperatureRange*0.5;
     return (endTime-startTime)*m+(temperatureRange/Math.PI/4.0)*
@@ -554,4 +554,7 @@ public class Board{
   public void unselect(){
     selectedCreature = null;
   }
+public float getHeight() {
+	return boardHeight;
+}
 }

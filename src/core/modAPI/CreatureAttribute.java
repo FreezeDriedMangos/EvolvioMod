@@ -3,14 +3,13 @@ package core.modAPI;
 import core.Board;
 import core.Creature;
 
-public interface CreatureAttribute {
+public interface CreatureAttribute<T> {
     
     public void init(Board b, Creature c);
     
     public String getName();
-    public Object getValue();
-    public void setValue(Object v);
-    public Class getType();
+    public T getValue();
+    public void setValue(T v);
     
-    public void update(double lastUpdateTime, double updateTime, Creature c);   
+    public void update(double lastUpdateTime, double updateTime, Creature c, Board b);   
 }

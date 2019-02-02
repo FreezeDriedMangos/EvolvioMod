@@ -154,4 +154,8 @@ public class SoftBody{
 	public double getVY() {
 		return vy;
 	}
+	
+	public double getHue() {
+		return hue;
+	}
 }

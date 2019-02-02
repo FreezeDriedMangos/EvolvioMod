@@ -39,7 +39,7 @@ public class EvolvioMod extends PApplet {
 	float cameraY = BOARD_HEIGHT*0.5f;
 	float cameraR = 0;
 	float zoom = 1;
-	PFont font;
+	public PFont font;
 	int dragging = 0; // 0 = no drag, 1 = drag screen, 2 and 3 are dragging temp extremes.
 	float prevMouseX;
 	float prevMouseY;
@@ -52,7 +52,7 @@ public class EvolvioMod extends PApplet {
 		PApplet.main("core.EvolvioMod");
 	}
 
-	float WINDOW_SCALE() {
+	public float WINDOW_SCALE() {
 		try{
 		    return (float)frame.getWidth() / (float)(WINDOW_WIDTH); // this magic number is the value of (float)frame.getWidth() / (float)WINDOW_WIDTH before any size changes are done. I'm not sure why this is happening
 		} catch (Exception e) { return 1; }

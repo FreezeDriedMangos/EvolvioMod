@@ -1,11 +1,12 @@
-package defaultMods;
+package evolvioColor;
 
 import core.Creature;
 import core.Tile;
 import core.modAPI.CreatureEatBehavior;
+import evolvioColor.tileAttributes.FoodLevel;
 import processing.core.PApplet;
 
-public class DefaultEatBehavior implements CreatureEatBehavior {
+public class ColorEatBehavior implements CreatureEatBehavior {
 	double EAT_ENERGY = 0.05;
 	  
 	// TODO: make these CreatureAttributes
@@ -20,12 +21,21 @@ public class DefaultEatBehavior implements CreatureEatBehavior {
 
 	@Override
 	public void creatureEatFromTile(Creature c, Tile t, double amount, double attemptedAmount, double timeStep) {
-        double foodToEat = t.getFoodLevel()*(1-Math.pow((1-EAT_SPEED),amount*timeStep));
-        if(foodToEat > t.getFoodLevel()){
-          foodToEat = t.getFoodLevel();
+
+		double tFoodLevel = (Double)t.getAttribute("foodLevel").getValue();
+		
+		double foodToEat = tFoodLevel*(1-Math.pow((1-EAT_SPEED),amount*timeStep));
+        if(foodToEat > tFoodLevel){
+          foodToEat = tFoodLevel;
         }
-        t.removeFood(foodToEat, true);
-        double foodDistance = Math.abs(t.foodType-c.mouthHue);
+        //t.removeFood(foodToEat, true);
+        t.update();
+        ((FoodLevel)t.getAttribute("foodLevel")).removeFood(foodToEat, false);
+        
+        double cMouthHue = (Double)c.getAttribute("mouthHue").getValue();
+        double tFoodHue = (Double)t.getAttribute("foodHue").getValue();
+        
+        double foodDistance = Math.abs(tFoodHue-cMouthHue); //TODO make foodType a TileAttribute
         double multiplier = 1.0-foodDistance/FOOD_SENSITIVITY;
         if(multiplier >= 0){
           c.addEnergy(foodToEat*multiplier);
@@ -39,6 +49,14 @@ public class DefaultEatBehavior implements CreatureEatBehavior {
 	public void creatureFailToEatFromTile(Creature c, Tile t, double amount, double attemptedAmount, double timeStep) {
         c.dropEnergy(-amount*timeStep);
         c.loseEnergy(-attemptedAmount*EAT_ENERGY*timeStep);
+	}
+
+	@Override
+	public void creatureDepositFoodToTile(Creature c, Tile t, double amount) {
+		t.update();
+	
+		FoodLevel l = (FoodLevel) t.getAttribute("foodLevel");
+		l.addFood(amount, c.getHue(), false);
 	}
 	
 }
