@@ -1,2 +1,3 @@
-Goo goo
-Ga ga
+This feature
+Not yet implemented
+see line ~544 in Board's toBigString() function

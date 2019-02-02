@@ -47,8 +47,6 @@ public class EvolvioMod extends PApplet {
 	final String INITIAL_FILE_NAME = "PIC";
 
 	float lastDrawTime = 0;
-
-	ModLoader modLoader;
 	
 	public static void main(String args[]) {
 		PApplet.main("core.EvolvioMod");
@@ -72,11 +70,10 @@ public class EvolvioMod extends PApplet {
 		
 		//TODO: colorMode(HSB); causes all colors to draw as black
 		// I believe it has something to do with how I replaced "color" with "int"
-		colorMode(HSB);
+		colorMode(HSB, 1.0f);
 		font = loadFont("Jygquip1-48.vlw");
 		
-		modLoader = new ModLoader();
-		modLoader.init();
+		ModLoader.init();
 		
 		float initScale = 0.6f;
 		size((int)(WINDOW_WIDTH*initScale), (int)(WINDOW_HEIGHT*initScale)); 
