@@ -3,7 +3,7 @@ package core.modAPI;
 import core.Board;
 import core.Creature;
 
-public interface ApiCreatureAttribute {
+public interface CreatureAttribute {
     
     public void init(Board b, Creature c);
     

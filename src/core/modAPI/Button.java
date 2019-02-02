@@ -1,6 +1,6 @@
 package core.modAPI;
 
-public interface ApiButton {
+public interface Button {
     public void leftSideClick();
     public void rightSideClick();
     public void draw();   

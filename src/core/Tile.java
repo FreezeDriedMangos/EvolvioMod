@@ -1,7 +1,7 @@
 package core;
 
 import java.util.HashMap;
-import core.modAPI.ApiTileAttribute;
+import core.modAPI.TileAttribute;
 
 public class Tile{
     public final int barrenColor = EvolvioMod.main.color(0,0,1);
@@ -20,7 +20,7 @@ public class Tile{
     public double climateType;
     public double foodType;
     
-    HashMap<String, ApiTileAttribute> attributes = new HashMap();
+    HashMap<String, TileAttribute> attributes = new HashMap();
     
     Board board;
     

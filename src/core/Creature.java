@@ -9,9 +9,9 @@ public class Creature extends SoftBody{
   double ACCELERATION_BACK_ENERGY = 0.24;
   double SWIM_ENERGY = 0.008;
   double TURN_ENERGY = 0.05;
-  double EAT_ENERGY = 0.05;
-  double EAT_SPEED = 0.5; // 1 is instant, 0 is nonexistent, 0.001 is verrry slow.
-  double EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER = 2.0; // The bigger this number is, the less effiently creatures eat when they're moving.
+//  double EAT_ENERGY = 0.05;
+  //double EAT_SPEED = 0.5; // 1 is instant, 0 is nonexistent, 0.001 is verrry slow.
+  //double EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER = 2.0; // The bigger this number is, the less effiently creatures eat when they're moving.
   double FIGHT_ENERGY = 0.06;
   double INJURED_ENERGY = 0.25;
   double METABOLISM_ENERGY = 0.004;
@@ -26,7 +26,7 @@ public class Creature extends SoftBody{
   double[] previousEnergy = new double[ENERGY_HISTORY_LENGTH];
   final double MATURE_AGE = 0.01;
   final double STARTING_AXON_VARIABILITY = 1.0;
-  final double FOOD_SENSITIVITY = 0.3;
+//  final double FOOD_SENSITIVITY = 0.3;
   
   double vr = 0;
   double rotation = 0;
@@ -52,7 +52,7 @@ public class Creature extends SoftBody{
   
   float CROSS_SIZE = 0.022f;
   
-  double mouthHue;
+  public double mouthHue; // TODO: make this a creatureattribute
   CreatureThread thread;
   
   public Creature(double tpx, double tpy, double tvx, double tvy, double tenergy,
@@ -299,8 +299,8 @@ public class Creature extends SoftBody{
   }
   public void accelerate(double amount, double timeStep){
     double multiplied = amount*timeStep/getMass();
-    vx += Math.cos(rotation)*multiplied;
-    vy += Math.sin(rotation)*multiplied;
+    vx = vx + Math.cos(rotation)*multiplied;
+    vy = vy + Math.sin(rotation)*multiplied;
     if(amount >= 0){
       loseEnergy(amount*ACCELERATION_ENERGY*timeStep);
     }else{
@@ -334,7 +334,7 @@ public class Creature extends SoftBody{
       */
       
       if(amount < 0){
-          ModLoader.apiCreatureEatBehavior.creatureFailToEatFromTile(this, coveredTile, amount, timeStep);
+          ModLoader.apiCreatureEatBehavior.creatureFailToEatFromTile(this, coveredTile, amount, attemptedAmount, timeStep);
       
           // the below original code is now part of a default mod
           /*
@@ -344,7 +344,7 @@ public class Creature extends SoftBody{
       } else {
           
           // this should go through the mod loader
-          ModLoader.apiCreatureEatBehavior.creatureEatFromTile(this, coveredTile, amount, timeStep);
+          ModLoader.apiCreatureEatBehavior.creatureEatFromTile(this, coveredTile, amount, attemptedAmount, timeStep);
           
           // the below original code is now part of a default mod
           /*

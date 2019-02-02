@@ -142,4 +142,16 @@ public class SoftBody{
   public double getMass(){
     return energy/ENERGY_DENSITY*density;
   }
+	/**
+	 * @return the vx
+	 */
+	public double getVX() {
+		return vx;
+	}
+	/**
+	 * @return the vy
+	 */
+	public double getVY() {
+		return vy;
+	}
 }
