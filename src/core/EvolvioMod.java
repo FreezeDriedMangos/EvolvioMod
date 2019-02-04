@@ -1,8 +1,13 @@
 package core;
 
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PFont;
 
 public class EvolvioMod extends PApplet {
 	/**
@@ -46,6 +51,8 @@ public class EvolvioMod extends PApplet {
 	boolean draggedFar = false;
 	final String INITIAL_FILE_NAME = "PIC";
 
+	Component contentPane;
+	
 	float lastDrawTime = 0;
 	
 	public static void main(String args[]) {
@@ -54,7 +61,7 @@ public class EvolvioMod extends PApplet {
 
 	public float WINDOW_SCALE() {
 		try{
-		    return (float)frame.getWidth() / (float)(WINDOW_WIDTH); // this magic number is the value of (float)frame.getWidth() / (float)WINDOW_WIDTH before any size changes are done. I'm not sure why this is happening
+		    return (float)getDrawspaceWidth() / (float)(WINDOW_WIDTH); // this magic number is the value of (float)frame.getWidth() / (float)WINDOW_WIDTH before any size changes are done. I'm not sure why this is happening
 		} catch (Exception e) { return 1; }
 	}
 
@@ -71,7 +78,7 @@ public class EvolvioMod extends PApplet {
 		//TODO: colorMode(HSB); causes all colors to draw as black
 		// I believe it has something to do with how I replaced "color" with "int"
 		colorMode(HSB, 1.0f);
-		font = loadFont("Jygquip1-48.vlw");
+		font = super.loadFont("Jygquip1-48.vlw");
 		
 		ModLoader.init();
 		
@@ -83,31 +90,45 @@ public class EvolvioMod extends PApplet {
 		// allow for resizing 
 		// also handle aspect ratio fixing
 		frame.setResizable(true);
+		
+		contentPane = frame.getComponents()[0];
 		frame.addComponentListener(new ComponentAdapter() {
 		    int lastWidth = WINDOW_WIDTH;
 		    int lastHeight = WINDOW_HEIGHT;
 		    public void componentResized(ComponentEvent componentEvent) {
 		        // make sure aspect ratio is correct
-		        if(frame.getWidth() != lastWidth) {
-		            frame.setSize(frame.getWidth(), (int)(frame.getWidth() / ASPECT_RATIO));
+		        if(frame.getWidth() <= ASPECT_RATIO*frame.getHeight()) {
+		        	contentPane.setSize(contentPane.getWidth(), (int)(contentPane.getWidth() / ASPECT_RATIO));
 		        } else if (frame.getHeight() != lastHeight) {
-		            frame.setSize((int)(frame.getHeight() * ASPECT_RATIO), frame.getHeight());
+		        	contentPane.setSize((int)(contentPane.getHeight() * ASPECT_RATIO), contentPane.getHeight());
 		        }
 		        
 		        lastWidth = frame.getWidth();
 		        lastHeight = frame.getHeight();
 		    }
 		});
-		frame.addMouseWheelListener(new MouseWheelListener(){
-			public void mouseWheelMoved(MouseWheelEvent event) {
-				mouseWheel(event);
-			}
-		});
-				
+//		contentPane.addMouseWheelListener(new MouseWheelListener(){
+//			public void mouseWheelMoved(MouseWheelEvent event) {
+//				System.out.println("scrolling is happening!");
+//				mouseWheel(event);
+//			}
+//		});	
+		
+		System.out.println("frame components");
+		for(Component c : frame.getComponents()) {
+			System.out.println(c);
+		}
 		
 		evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, 
 		ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
 		resetZoom();
+	}
+	
+	public int getDrawspaceHeight() {
+		return contentPane.getHeight();
+	}
+	public int getDrawspaceWidth() {
+		return contentPane.getWidth();
 	}
 
 	@Override
@@ -169,7 +190,7 @@ public class EvolvioMod extends PApplet {
 		evoBoard.drawBoard(SCALE_TO_FIX_BUG, zoom, (int)toWorldXCoordinate(mouseX/WINDOW_SCALE(), mouseY/WINDOW_SCALE()), (int)toWorldYCoordinate(mouseX/WINDOW_SCALE(), mouseY/WINDOW_SCALE())); // sc
 		popMatrix();
 		scale(WINDOW_SCALE()); // sc
-		evoBoard.drawUI(SCALE_TO_FIX_BUG, TIME_STEP, (int)(height/WINDOW_SCALE()), 0, (int)(width/WINDOW_SCALE()), (int)(height/WINDOW_SCALE()), font); //sc
+		evoBoard.drawUI(SCALE_TO_FIX_BUG, TIME_STEP, (int)(getDrawspaceHeight()/WINDOW_SCALE()), 0, (int)(getDrawspaceWidth()/WINDOW_SCALE()), (int)(height/WINDOW_SCALE()), font); //sc
 
 		//this function is causing problems
 		//evoBoard.fileSave();
@@ -180,7 +201,8 @@ public class EvolvioMod extends PApplet {
 	/**
 	 * Zooms the overworld map
 	 */
-	void mouseWheel(MouseWheelEvent event) {
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent event) {
 		float delta = (float) event.getPreciseWheelRotation();
 		if (delta >= 0.5) {
 		    setZoom(zoom*0.90909f, mouseX, mouseY);
@@ -196,6 +218,8 @@ public class EvolvioMod extends PApplet {
 	public void mousePressed() {
 		int adjustedMouseX = (int)(mouseX/WINDOW_SCALE()); // sc
 		int adjustedMouseY = (int)(mouseY/WINDOW_SCALE()); // sc
+		
+		
 		
 		//int fheight = frame.getHeight();
 		//int fwidth = frame.getWidth();

@@ -1,32 +1,36 @@
 package core;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 
+import core.modAPI.Brain;
+import core.modAPI.BrainDrawer;
 import core.modAPI.Button;
 import core.modAPI.CreatureAttribute;
 import core.modAPI.CreatureEatBehavior;
 import core.modAPI.TileAttribute;
 import core.modAPI.TileDrawer;
-import evolvioColor.ColorEatBehavior;
 
 public final class ModLoader {
 	public static final ArrayList<Class<TileAttribute>> tileAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAttribute>> creatureAttributes = new ArrayList<>();
 	public static final ArrayList<Class<Button>> buttons = new ArrayList<>();
+	
+	public static Class<Brain> brainModel;
+	
 	public static CreatureEatBehavior creatureEatBehavior;
 	public static TileDrawer          tileDrawer;
-
+	public static BrainDrawer         brainDrawer;
+	
 	/**
 	 * recursively looks in folder "mods" for any classes that implemnt any API
 	 * interfaces and loads them
 	 */
+	@SuppressWarnings("unchecked")
 	public static void init() {
 		ArrayList<Path> paths = new ArrayList<>();
 		try {
@@ -69,15 +73,20 @@ public final class ModLoader {
 					if(inter.getCanonicalName().equals("core.modAPI.CreatureEatBehavior")) {
 						creatureEatBehavior = (CreatureEatBehavior) c.getConstructor().newInstance(); 
 					}
-					
 					if(inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
 						tileDrawer = (TileDrawer) c.getConstructor().newInstance(); 
+					}
+					if(inter.getCanonicalName().equals("core.modAPI.BrainDrawer")) {
+						brainDrawer = (BrainDrawer) c.getConstructor().newInstance(); 
+					}
+					
+					if(inter.getCanonicalName().equals("core.modAPI.Brain")) {
+						brainModel = (Class<Brain>) c;
 					}
 					
 					if(inter.getCanonicalName().equals("core.modAPI.TileAttribute")) {
 						tileAttributes.add((Class<TileAttribute>) c);
 					}
-					
 					if(inter.getCanonicalName().equals("core.modAPI.CreatureAttribute")) {
 						creatureAttributes.add((Class<CreatureAttribute>) c);
 					}
@@ -111,10 +120,6 @@ public final class ModLoader {
 		}
 	}
 
-	public static void creatureEatFromTile(Creature c, Tile t) {
-
-	}
-
 	public static void initializeAttributes(Tile tile, Board board, float stepSize) {
 		for(Class<TileAttribute> attribute : tileAttributes) {
 			try {
@@ -135,7 +140,43 @@ public final class ModLoader {
 		}
 	}
 
-	public static void drawTile(Tile tile, float scaleUp, boolean showEnergy) {
-		tileDrawer.draw(tile, scaleUp, showEnergy);
+	public static Brain createBrain(Creature c, Board b) {
+		try {
+			Brain brain = brainModel.getConstructor().newInstance();
+			brain.init(c, b, new String[] {"hue", "accelerate", "fight", "eat", "turn", "reproduce"});
+			
+			return brain;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} 
+	}
+
+	public static Brain getOffspringBrain(ArrayList<Creature> parents) {
+		try {
+			return brainModel.getConstructor().newInstance().getOffspring(parents);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+		return null;
+	}
+
+	public static void setOffspringAttributes(Creature baby, ArrayList<Creature> parents, Board board) {
+		for(Class<CreatureAttribute> attribute : creatureAttributes) {
+			try {
+				String attributeName = attribute.getConstructor().newInstance().getName();
+				
+				ArrayList<CreatureAttribute> parentAttributes = new ArrayList<>();
+				for(Creature parent : parents) {
+					parentAttributes.add(parent.getAttribute(attributeName));
+				}
+				
+				CreatureAttribute a = attribute.newInstance();
+				a.initFromParents(parentAttributes, board);
+				
+				baby.attributes.put(a.getName(), a);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) { e.printStackTrace(); }
+		}
 	}
 }

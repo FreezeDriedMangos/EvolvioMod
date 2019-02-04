@@ -51,30 +51,35 @@ public class Tile{
     	return attributes.get(name);
     }
     
-    public void drawTile(float scaleUp, boolean showEnergy){
-    	update();
-    	ModLoader.drawTile(this, scaleUp, showEnergy);
-    	
-    	// TODO: put this in the evolvioColor mod
-//    	EvolvioMod.main.stroke(0,0,0,1);
-//    	EvolvioMod.main.strokeWeight(2);
-//        int landColor = getColor();
-//        EvolvioMod.main.fill(landColor);
-//        EvolvioMod.main.rect(posX*scaleUp,posY*scaleUp,scaleUp,scaleUp);
-//        if(showEnergy){
-//            if(EvolvioMod.main.brightness(landColor) >= 0.7){
-//            	EvolvioMod.main.fill(0,0,0,1);
-//            }else{
-//            	EvolvioMod.main.fill(0,0,1,1);
-//            }
-//            EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
-//            EvolvioMod.main.textFont(EvolvioMod.main.font,/*21*/35*EvolvioMod.main.WINDOW_SCALE());
-//            EvolvioMod.main.text(EvolvioMod.main.nf((float)(100*foodLevel),0,2)+" yums",(posX+0.5f)*scaleUp,(posY+0.3f)*scaleUp);
-//            EvolvioMod.main.text("Clim: "+EvolvioMod.main.nf((float)(climateType),0,2),(posX+0.5f)*scaleUp,(posY+0.6f)*scaleUp);
-//            EvolvioMod.main.text("Food: "+EvolvioMod.main.nf((float)(foodHue),0,2),(posX+0.5f)*scaleUp,(posY+0.9f)*scaleUp);
-//        }
-    }
-    
+//    public void drawTile(float scaleUp, boolean showEnergy){
+//    	update();
+//    	ModLoader.tileDrawer.draw(this, scaleUp);
+//    	
+//    	// TODO: put this in the evolvioColor mod
+////    	EvolvioMod.main.stroke(0,0,0,1);
+////    	EvolvioMod.main.strokeWeight(2);
+////        int landColor = getColor();
+////        EvolvioMod.main.fill(landColor);
+////        EvolvioMod.main.rect(posX*scaleUp,posY*scaleUp,scaleUp,scaleUp);
+////        if(showEnergy){
+////            if(EvolvioMod.main.brightness(landColor) >= 0.7){
+////            	EvolvioMod.main.fill(0,0,0,1);
+////            }else{
+////            	EvolvioMod.main.fill(0,0,1,1);
+////            }
+////            EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
+////            EvolvioMod.main.textFont(EvolvioMod.main.font,/*21*/35*EvolvioMod.main.WINDOW_SCALE());
+////            EvolvioMod.main.text(EvolvioMod.main.nf((float)(100*foodLevel),0,2)+" yums",(posX+0.5f)*scaleUp,(posY+0.3f)*scaleUp);
+////            EvolvioMod.main.text("Clim: "+EvolvioMod.main.nf((float)(climateType),0,2),(posX+0.5f)*scaleUp,(posY+0.6f)*scaleUp);
+////            EvolvioMod.main.text("Food: "+EvolvioMod.main.nf((float)(foodHue),0,2),(posX+0.5f)*scaleUp,(posY+0.9f)*scaleUp);
+////        }
+//    }
+
+
+//	public void drawBlendTile(float scaleUp) {
+//    	ModLoader.tileDrawer.drawBlendLayer(this, scaleUp);
+//	}
+	
     // TODO: make board call this function on update
     public void update(){
         double updateTime = board.year;
