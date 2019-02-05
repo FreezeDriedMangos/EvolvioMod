@@ -16,4 +16,13 @@ public interface CreatureAttribute<T> {
     public void update(double lastUpdateTime, double updateTime, Creature c, Board b);
 
 	public void initFromParents(ArrayList<CreatureAttribute> parentAttributes, Board board);
+	
+	//TODO: future update: speciation
+//	public float getSpeciesDelta(Creature other);
+//	/**
+//	 * Two creatures will be allowed to mate if all attributes and brains in both creatures return true here
+//	 * @param totalSpeciesDelta = brain.getSpeciesDelta(other.brain) * 0.5 + creatureAttributesSpeciesDelta_Sum * 0.5 
+//	 * @return
+//	 */
+//	public boolean canMate(float totalSpeciesDelta);
 }

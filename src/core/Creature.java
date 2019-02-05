@@ -292,14 +292,10 @@ public class Creature extends SoftBody {
 //		}
 //	}
 
-	public void drawSoftBody(float scaleUp, float camZoom, boolean showVision) {
-
-		if (showVision) {
-			for(CreaturePeripheral peripheral : peripherals) {
-				peripheral.preCreatureDraw(this, board, scaleUp, camZoom);
-			}
+	public void drawSoftBody(float scaleUp, float camZoom, boolean overworldDraw) {
+		for(CreaturePeripheral peripheral : peripherals) {
+			peripheral.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 		}
-		
 		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		double radius = getRadius();
@@ -365,7 +361,7 @@ public class Creature extends SoftBody {
 		 * vertex(0.8*scaleUp,0.0*scaleUp); endShape(CLOSE);
 		 */
 		EvolvioMod.main.popMatrix();
-		if (showVision) {
+		if (overworldDraw) {
 			EvolvioMod.main.fill(0, 0, 1);
 			EvolvioMod.main.textFont(EvolvioMod.main.font, 0.2f * scaleUp);
 			EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
@@ -374,10 +370,8 @@ public class Creature extends SoftBody {
 		}
 		
 
-		if (showVision) {
-			for(CreaturePeripheral peripheral : peripherals) {
-				peripheral.postCreatureDraw(this, board, scaleUp, camZoom);
-			}
+		for(CreaturePeripheral peripheral : peripherals) {
+			peripheral.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 		}
 	}
 

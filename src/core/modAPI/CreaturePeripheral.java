@@ -6,6 +6,13 @@ import java.util.Map;
 import core.Board;
 import core.Creature;
 
+/**
+ * Note: this interface will never have a initFromParents() method. If you want your
+ * peripheral to be impacted by this creature's parents', consider using a creature
+ * attribute to inform your peripheral. Creature attributes <i>do</i> have inheritance
+ * @author clay
+ *
+ */
 public interface CreaturePeripheral {
 	public void init();
 //	public CreaturePeripheral getOffspring(List<Creature> parents);
@@ -19,6 +26,6 @@ public interface CreaturePeripheral {
 	 * @return
 	 */
 	public Map<String, Double> getInputValues(Creature c, Board b, double timeStep);
-	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom);
-	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom);
+	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw);
+	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw);
 }

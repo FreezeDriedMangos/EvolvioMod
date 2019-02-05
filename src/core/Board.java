@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import processing.core.PFont;
 
 public class Board {
-	public static final boolean BLEND_TILES = true;
+	public static final boolean BLEND_TILES = false;//true;
 	
 	static final int MAX_PLAYSPEED = 4056;
 	static final int MAX_REALTIME_PLAYSPEED = 2048;
@@ -303,8 +303,8 @@ public class Board {
 			EvolvioMod.main.text("Generation: " + selectedCreature.gen, 10, 475);
 			EvolvioMod.main.text("Parents: " + selectedCreature.parents, 10, 500, 210, 255);
 			EvolvioMod.main.text("Hue: " + EvolvioMod.main.nf((float) (selectedCreature.hue), 0, 2), 10, 550, 210, 255);
-			EvolvioMod.main.text("Mouth hue: " + EvolvioMod.main.nf((float) (selectedCreature.secondaryHue), 0, 2), 10,
-					575, 210, 255);
+			//EvolvioMod.main.text("Mouth hue: " + EvolvioMod.main.nf((float) (selectedCreature.secondaryHue), 0, 2), 10,
+			//		575, 210, 255);
 
 			if (userControl) {
 				EvolvioMod.main.text(

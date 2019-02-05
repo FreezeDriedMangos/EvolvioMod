@@ -138,7 +138,11 @@ public class Eyestalks implements CreaturePeripheral {
 	}
 	
 	@Override
-	public void preCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom) {
+	public void preCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom, boolean overworldDraw) {
+		if(!overworldDraw) {
+			return;
+		}
+		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		
 		for (int i = 0; i < visionAngles.length; i++) {
@@ -180,9 +184,6 @@ public class Eyestalks implements CreaturePeripheral {
 	}
 
 	@Override
-	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw) {}
 
 }

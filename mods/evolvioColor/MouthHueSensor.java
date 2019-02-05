@@ -37,13 +37,13 @@ public class MouthHueSensor implements CreaturePeripheral {
 	}
 
 	@Override
-	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom) {
+	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void postCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom) {
+	public void postCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom, boolean overworldDraw) {
 		double radius = creature.getRadius();
 		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);

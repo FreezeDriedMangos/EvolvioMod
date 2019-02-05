@@ -9,8 +9,11 @@ public class ColorTileDrawer implements TileDrawer {
     public final int barrenColor = EvolvioMod.main.color(0,0,1);
     public final int fertileColor = EvolvioMod.main.color(0,0,0.2f);
     public final int blackColor = EvolvioMod.main.color(0,1,0);
-    public final int waterColor = EvolvioMod.main.color(0,0,0);
-
+    public final int waterColor = barrenColor;//EvolvioMod.main.color(0,0,0);
+    // the original water color may have been confusing the creatures, as super firtile was
+    // the same as water - the epitome of infertile. So I changed it up and made water color the
+    // same as barren - aka infirtile
+    
     public boolean drawTileBorders = false;
     public boolean blendAdjacent = true;
     public float blendRadius = 0.1f;
