@@ -40,6 +40,7 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 	double[][] neurons;
 	
 	HashMap<String, Integer> outputIndecies = new HashMap<>();
+	List<String> outputs = null;
 	List<String> inputs = null;
 	
 	@Override
@@ -50,6 +51,7 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 		}
 		
 		inputs = inputsRequired;
+		outputs = outputsRequired;
 		BRAIN_HEIGHT = inputs.size() + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
 		
 		axons = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
@@ -272,6 +274,9 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 		b.inputs = new ArrayList<>();
 		b.inputs.addAll(inputsRequired);
 		
+		b.outputs = new ArrayList<>();
+		b.outputs.addAll(outputsRequired);
+		
 		return b;
 	}
 
@@ -280,10 +285,13 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 		EvolvioBrain brain = (EvolvioBrain)b;
 		
 		final float neuronSize = 0.4f;
+		final float backgroundX = (-1.7f - neuronSize) * scaleUp;
+		final float backgroundY = -neuronSize * scaleUp;
+		final float backgroundHeight = (BRAIN_HEIGHT + neuronSize * 2) * scaleUp;
+		final float backgroundWidth = (2.4f + BRAIN_WIDTH + neuronSize * 2) * scaleUp;
 		EvolvioMod.main.noStroke();
 		EvolvioMod.main.fill(0, 0, 0.4f);
-		EvolvioMod.main.rect((-1.7f - neuronSize) * scaleUp, -neuronSize * scaleUp,
-				(2.4f + BRAIN_WIDTH + neuronSize * 2) * scaleUp, (BRAIN_HEIGHT + neuronSize * 2) * scaleUp);
+		EvolvioMod.main.rect(backgroundX, backgroundY,backgroundWidth, backgroundHeight);
 
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		EvolvioMod.main.strokeWeight(2);
@@ -291,24 +299,72 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 		EvolvioMod.main.fill(0, 0, 1);
 		//String[] inputLabels = { "0Hue", "0Sat", "0Bri", "1Hue", "1Sat", "1Bri", "2Hue", "2Sat", "2Bri", "Size", "MHue",
 		//		"Mem", "Const." };
+		
+		// input labels
 		String[] inputLabels = new String[brain.BRAIN_HEIGHT]; 
+		int placeholderCount = Math.max(0, brain.outputs.size() - brain.inputs.size());
+		
 		for(int i = 0; i < brain.inputs.size(); i++) {
 			inputLabels[i] = brain.inputs.get(i);
 		}
-		
+		for(int i = 0; i < placeholderCount; i++) {
+			inputLabels[brain.inputs.size() + i] = getPlaceholderLabel(i);
+		}
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			inputLabels[brain.inputs.size() + i] = "Mem";
+			inputLabels[brain.inputs.size() + placeholderCount + i] = "Mem";
 		}
 		inputLabels[inputLabels.length-1] = "Const.";
 		
-		String[] outputLabels = { "BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "MHue", "How funny?", "How popular?",
-				"How generous?", "How smart?", "Mem", "Const." };
+		// output labels
 		
-		// TODO: make this work off of the stuff passed in /\
+		String[] outputLabels = new String[brain.BRAIN_HEIGHT]; 
+		placeholderCount = Math.max(0, brain.inputs.size() - brain.outputs.size());
+		
+		for(int i = 0; i < brain.outputs.size(); i++) {
+			outputLabels[i] = brain.outputs.get(i);
+		}
+		for(int i = 0; i < placeholderCount; i++) {
+			outputLabels[brain.outputs.size() + i] = getPlaceholderLabel(i);
+		}
+		for (int i = 0; i < MEMORY_COUNT; i++) {
+			outputLabels[brain.outputs.size() + placeholderCount + i] = "Mem";
+		}
+		outputLabels[outputLabels.length-1] = "Const.";
+		
+//		String[] outputLabels = { "BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "MHue", "How funny?", "How popular?",
+//				"How generous?", "How smart?", "Mem", "Const." };
+		
+		// draw the labels
+		
+		int specialNodeTextColor = EvolvioMod.main.color(0.8f, 0.5f, 1);
+		int unusedNodeTextColor = EvolvioMod.main.color(1f, 0.5f, 1f);
+		int nodeTextColor = EvolvioMod.main.color(0.5f, 0.5f, 1);
+		
+		final float textHeight = EvolvioMod.main.textAscent() + EvolvioMod.main.textDescent();
+		EvolvioMod.main.fill(1);
+		EvolvioMod.main.text("Key:",backgroundX, backgroundY + backgroundHeight + textHeight);
+		EvolvioMod.main.fill(nodeTextColor);
+		EvolvioMod.main.text("Given input / output",backgroundX, backgroundY + backgroundHeight + 2*textHeight);
+		EvolvioMod.main.fill(unusedNodeTextColor);
+		EvolvioMod.main.text("Unused placeholder node",backgroundX, backgroundY + backgroundHeight + 3*textHeight);
+		EvolvioMod.main.fill(specialNodeTextColor);
+		EvolvioMod.main.text("Special locally-defined node",backgroundX, backgroundY + backgroundHeight + 4*textHeight);
+		
+		//EvolvioMod.main.text("Given input / output", (-neuronSize - 0.1f) * scaleUp, (y + (neuronSize * 0.6f)) * scaleUp);
+		
 		
 		for (int y = 0; y < brain.BRAIN_HEIGHT; y++) {
+			if(y >= brain.inputs.size() && y < inputLabels.length-MEMORY_COUNT-1) {EvolvioMod.main.fill(unusedNodeTextColor);}
+			else if(y >= brain.inputs.size()) {EvolvioMod.main.fill(specialNodeTextColor);}
+			else 	         			                                           {EvolvioMod.main.fill(nodeTextColor);}
+			
 			EvolvioMod.main.textAlign(EvolvioMod.main.RIGHT);
 			EvolvioMod.main.text(inputLabels[y], (-neuronSize - 0.1f) * scaleUp, (y + (neuronSize * 0.6f)) * scaleUp);
+			
+			if(y >= brain.outputs.size() && y < outputLabels.length-MEMORY_COUNT-1) {EvolvioMod.main.fill(unusedNodeTextColor);}
+			else if(y >= brain.inputs.size()) {EvolvioMod.main.fill(specialNodeTextColor);}
+			else 				          {EvolvioMod.main.fill(nodeTextColor);}
+			
 			EvolvioMod.main.textAlign(EvolvioMod.main.LEFT);
 			EvolvioMod.main.text(outputLabels[y], (BRAIN_WIDTH - 1 + neuronSize + 0.1f) * scaleUp,
 					(y + (neuronSize * 0.6f)) * scaleUp);
@@ -334,6 +390,16 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 					brain.drawAxon(mX, mY, mX + 1, y, scaleUp);
 				}
 			}
+		}
+	}
+
+	private String getPlaceholderLabel(int i) {
+		switch(i) {
+			case 0: return "How funny?";
+			case 1: return "How creative?";
+			case 2: return "How considerate?";
+			case 3: return "How honest?";
+			default: return "How unoriginal?";
 		}
 	}
 
