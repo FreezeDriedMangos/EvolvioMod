@@ -1,24 +1,19 @@
 package core.modAPI;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import core.Board;
 import core.Creature;
 
 public interface Brain {
-	// should always return the same thing, ideally should return a literal array of literal strings
-	public String[] getCustomOutputNames();
-	
 	// output names will forcefully include standard outputs like accelerate, turn
 	// fight, have a baby, eat, etc.
-	public void init(Creature c, Board b, String[] outputNames);
-	public void think(Creature c, Board b, double timeStep); // updates the brain
+	public void init(Creature c, Board b, List<String> inputsRequired, List<String> outputsRequired);
+	public void think(Creature c, Map<String, Double> peripheralInputs, Board b, double timeStep); // updates the brain
 	public double getOutput(String name);
-	public double[] getAllOutputs();
-	public String[] getOutputNames();
-	public void draw();
 	
-	public Brain getOffspring(ArrayList<Creature> parents);
+	public Brain getOffspring(List<Creature> parents, /*List<BrainInput> inputsRequired,*/ List<String> inputsRequired, List<String> outputsRequired);
 
-	public void useOutput(Creature creature, Board board, double timeStep);
+	//public void useOutput(Creature creature, Board board, double timeStep);
 }

@@ -2,9 +2,12 @@ package core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import core.modAPI.Brain;
+import core.modAPI.CreatureAction;
 import core.modAPI.CreatureAttribute;
+import core.modAPI.CreaturePeripheral;
 import processing.core.PFont;
 
 public class Creature extends SoftBody {
@@ -63,19 +66,23 @@ public class Creature extends SoftBody {
 	CreatureThread thread;
 
 	HashMap<String, CreatureAttribute> attributes = new HashMap<>();
+	List<CreatureAction> actions = new ArrayList<>();
+	List<CreaturePeripheral> peripherals = new ArrayList<>();
 	Brain brain;
 	
 	public Creature(double tpx, double tpy, double tvx, double tvy, double tenergy, double tdensity, double thue,
 			double tsaturation, double tbrightness, Board tb, double bt, double rot, double tvr, String tname,
-			String tparents, boolean mutateName, /*Axon[][][] tbrain, double[][] tneurons,*/ Brain tbrain, int tgen, double tmouthHue) {
+			String tparents, boolean mutateName, /*Axon[][][] tbrain, double[][] tneurons,*/ Brain tbrain, List<CreaturePeripheral> per, int tgen, double tmouthHue) {
 
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
 
 		if(tbrain == null) {
+			peripherals = ModLoader.createPeripherals();
 			brain = ModLoader.createBrain(this, tb);
 			ModLoader.initializeAttributes(this, tb);
 		} else {
 			brain = tbrain;
+			peripherals = per;
 		}
 		
 //		boolean firstPrint = true;
@@ -202,8 +209,12 @@ public class Creature extends SoftBody {
 //	}
 
 	public void useBrain(double timeStep, boolean useOutput) {
+		HashMap<String, Double> peripheralInputs = new HashMap<>();
+		for(CreaturePeripheral p : peripherals) {
+			peripheralInputs.putAll(p.getInputValues(this, board, timeStep));
+		}
 		
-		brain.think(this, board, timeStep);
+		brain.think(this, peripheralInputs, board, timeStep);
 		
 		if (useOutput) {
 			hue = Math.min(Math.max(brain.getOutput("hue"), 0), 1);
@@ -214,9 +225,13 @@ public class Creature extends SoftBody {
 			if (brain.getOutput("reproduce") > 0 && board.year - birthTime >= MATURE_AGE && energy > SAFE_SIZE) {
 				reproduce(SAFE_SIZE, timeStep);
 			}
-			secondaryHue = Math.min(Math.max(brain.getOutput("secondaryHue"), 0), 1);
+			//secondaryHue = Math.min(Math.max(brain.getOutput("secondaryHue"), 0), 1);
 			
-			brain.useOutput(this, board, timeStep);
+			//brain.useOutput(this, board, timeStep);
+			
+			for(CreatureAction a : actions) {
+				a.doAction(brain, this, board, timeStep);
+			}
 		}
 		
 //		for (int i = 0; i < 9; i++) {
@@ -257,57 +272,65 @@ public class Creature extends SoftBody {
 //		}
 	}
 
-	public double sigmoid(double input) {
-		return 1.0 / (1.0 + Math.pow(2.71828182846, -input));
-	}
+//	public double sigmoid(double input) {
+//		return 1.0 / (1.0 + Math.pow(2.71828182846, -input));
+//	}
 
-	public int neuronFillColor(double d) {
-		if (d >= 0) {
-			return EvolvioMod.main.color(0, 0, 1, (float) (d));
-		} else {
-			return EvolvioMod.main.color(0, 0, 0, (float) (-d));
-		}
-	}
-
-	public int neuronTextColor(double d) {
-		if (d >= 0) {
-			return EvolvioMod.main.color(0, 0, 0);
-		} else {
-			return EvolvioMod.main.color(0, 0, 1);
-		}
-	}
+//	public int neuronFillColor(double d) {
+//		if (d >= 0) {
+//			return EvolvioMod.main.color(0, 0, 1, (float) (d));
+//		} else {
+//			return EvolvioMod.main.color(0, 0, 0, (float) (-d));
+//		}
+//	}
+//
+//	public int neuronTextColor(double d) {
+//		if (d >= 0) {
+//			return EvolvioMod.main.color(0, 0, 0);
+//		} else {
+//			return EvolvioMod.main.color(0, 0, 1);
+//		}
+//	}
 
 	public void drawSoftBody(float scaleUp, float camZoom, boolean showVision) {
-		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
-		double radius = getRadius();
+
 		if (showVision) {
-			for (int i = 0; i < visionAngles.length; i++) {
-				int visionUIcolor = EvolvioMod.main.color(0, 0, 1);
-				if (visionResults[i * 3 + 2] > BRIGHTNESS_THRESHOLD) {
-					visionUIcolor = EvolvioMod.main.color(0, 0, 0);
-				}
-				EvolvioMod.main.stroke(visionUIcolor);
-				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-				float endX = (float) getVisionEndX(i);
-				float endY = (float) getVisionEndY(i);
-				EvolvioMod.main.line((float) (px * scaleUp), (float) (py * scaleUp), endX * scaleUp, endY * scaleUp);
-				EvolvioMod.main.noStroke();
-				EvolvioMod.main.fill(visionUIcolor);
-				EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
-						2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
-				EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
-						(float) (visionResults[i * 3 + 2]));
-				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
-				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+			for(CreaturePeripheral peripheral : peripherals) {
+				peripheral.preCreatureDraw(this, board, scaleUp, camZoom);
 			}
 		}
+		
+		
+		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
+		double radius = getRadius();
+//		if (showVision) {
+//			for (int i = 0; i < visionAngles.length; i++) {
+//				int visionUIcolor = EvolvioMod.main.color(0, 0, 1);
+//				if (visionResults[i * 3 + 2] > BRIGHTNESS_THRESHOLD) {
+//					visionUIcolor = EvolvioMod.main.color(0, 0, 0);
+//				}
+//				EvolvioMod.main.stroke(visionUIcolor);
+//				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+//				float endX = (float) getVisionEndX(i);
+//				float endY = (float) getVisionEndY(i);
+//				EvolvioMod.main.line((float) (px * scaleUp), (float) (py * scaleUp), endX * scaleUp, endY * scaleUp);
+//				EvolvioMod.main.noStroke();
+//				EvolvioMod.main.fill(visionUIcolor);
+//				EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
+//						2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
+//				EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
+//						(float) (visionResults[i * 3 + 2]));
+//				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+//				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
+//				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+//			}
+//		}
 		EvolvioMod.main.noStroke();
 		if (fightLevel > 0) {
 			EvolvioMod.main.fill(0, 1, 1, (float) (fightLevel * 0.8));
@@ -348,6 +371,13 @@ public class Creature extends SoftBody {
 			EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
 			EvolvioMod.main.text(getCreatureName(), (float) (px * scaleUp),
 					(float) ((py - getRadius() * 1.4 - 0.07) * scaleUp));
+		}
+		
+
+		if (showVision) {
+			for(CreaturePeripheral peripheral : peripherals) {
+				peripheral.postCreatureDraw(this, board, scaleUp, camZoom);
+			}
 		}
 	}
 
@@ -399,6 +429,7 @@ public class Creature extends SoftBody {
 		double amount = ModLoader.creatureEatBehavior.getCreatureEatAmount(this, coveredTile, attemptedAmount,
 				timeStep);
 
+		
 		// the below original code is now part of a default mod
 		/*
 		 * double amount = attemptedAmount/(1.0+distance(0,0,vx,vy)*
@@ -435,6 +466,9 @@ public class Creature extends SoftBody {
 	}
 
 	public void fight(double amount, double timeStep) {
+		if(amount != brain.getOutput("fight"))
+		System.out.println(amount + " from brain: " + brain.getOutput("fight"));
+		
 		if (amount > 0 && board.year - birthTime >= MATURE_AGE) {
 			fightLevel = amount;
 			loseEnergy(fightLevel * FIGHT_ENERGY * energy * timeStep);
@@ -470,69 +504,69 @@ public class Creature extends SoftBody {
 		}
 	}
 
-	public void see(double timeStep) {
-		for (int k = 0; k < visionAngles.length; k++) {
-			double visionStartX = px;
-			double visionStartY = py;
-			double visionTotalAngle = rotation + visionAngles[k];
-
-			double endX = getVisionEndX(k);
-			double endY = getVisionEndY(k);
-
-			visionOccludedX[k] = endX;
-			visionOccludedY[k] = endY;
-			int c = getColorAt(endX, endY);
-			visionResults[k * 3] = EvolvioMod.main.hue(c);
-			visionResults[k * 3 + 1] = EvolvioMod.main.saturation(c);
-			visionResults[k * 3 + 2] = EvolvioMod.main.brightness(c);
-
-			int tileX = 0;
-			int tileY = 0;
-			int prevTileX = -1;
-			int prevTileY = -1;
-			ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
-			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
-				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
-				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
-				if (tileX != prevTileX || tileY != prevTileY) {
-					addPVOs(tileX, tileY, potentialVisionOccluders);
-					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
-						addPVOs(prevTileX, tileY, potentialVisionOccluders);
-						addPVOs(tileX, prevTileY, potentialVisionOccluders);
-					}
-				}
-				prevTileX = tileX;
-				prevTileY = tileY;
-			}
-			double[][] rotationMatrix = new double[2][2];
-			rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
-			rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
-			rotationMatrix[1][0] = -rotationMatrix[0][1];
-			double visionLineLength = visionDistances[k];
-			for (int i = 0; i < potentialVisionOccluders.size(); i++) {
-				SoftBody body = potentialVisionOccluders.get(i);
-				double x = body.px - px;
-				double y = body.py - py;
-				double r = body.getRadius();
-				double translatedX = rotationMatrix[0][0] * x + rotationMatrix[1][0] * y;
-				double translatedY = rotationMatrix[0][1] * x + rotationMatrix[1][1] * y;
-				if (Math.abs(translatedY) <= r) {
-					if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength)
-							|| distance(0, 0, translatedX, translatedY) < r
-							|| distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an
-																								// occlussion.
-						visionLineLength = translatedX - Math.sqrt(r * r - translatedY * translatedY);
-						visionOccludedX[k] = visionStartX + visionLineLength * Math.cos(visionTotalAngle);
-						visionOccludedY[k] = visionStartY + visionLineLength * Math.sin(visionTotalAngle);
-						visionResults[k * 3] = body.hue;
-						visionResults[k * 3 + 1] = body.saturation;
-						visionResults[k * 3 + 2] = body.brightness;
-					}
-				}
-			}
-		}
-	}
-
+//	public void see(double timeStep) {
+//		for (int k = 0; k < visionAngles.length; k++) {
+//			double visionStartX = px;
+//			double visionStartY = py;
+//			double visionTotalAngle = rotation + visionAngles[k];
+//
+//			double endX = getVisionEndX(k);
+//			double endY = getVisionEndY(k);
+//
+//			visionOccludedX[k] = endX;
+//			visionOccludedY[k] = endY;
+//			int c = getColorAt(endX, endY);
+//			visionResults[k * 3] = EvolvioMod.main.hue(c);
+//			visionResults[k * 3 + 1] = EvolvioMod.main.saturation(c);
+//			visionResults[k * 3 + 2] = EvolvioMod.main.brightness(c);
+//
+//			int tileX = 0;
+//			int tileY = 0;
+//			int prevTileX = -1;
+//			int prevTileY = -1;
+//			ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
+//			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
+//				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
+//				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
+//				if (tileX != prevTileX || tileY != prevTileY) {
+//					addPVOs(tileX, tileY, potentialVisionOccluders);
+//					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
+//						addPVOs(prevTileX, tileY, potentialVisionOccluders);
+//						addPVOs(tileX, prevTileY, potentialVisionOccluders);
+//					}
+//				}
+//				prevTileX = tileX;
+//				prevTileY = tileY;
+//			}
+//			double[][] rotationMatrix = new double[2][2];
+//			rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
+//			rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
+//			rotationMatrix[1][0] = -rotationMatrix[0][1];
+//			double visionLineLength = visionDistances[k];
+//			for (int i = 0; i < potentialVisionOccluders.size(); i++) {
+//				SoftBody body = potentialVisionOccluders.get(i);
+//				double x = body.px - px;
+//				double y = body.py - py;
+//				double r = body.getRadius();
+//				double translatedX = rotationMatrix[0][0] * x + rotationMatrix[1][0] * y;
+//				double translatedY = rotationMatrix[0][1] * x + rotationMatrix[1][1] * y;
+//				if (Math.abs(translatedY) <= r) {
+//					if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength)
+//							|| distance(0, 0, translatedX, translatedY) < r
+//							|| distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an
+//																								// occlussion.
+//						visionLineLength = translatedX - Math.sqrt(r * r - translatedY * translatedY);
+//						visionOccludedX[k] = visionStartX + visionLineLength * Math.cos(visionTotalAngle);
+//						visionOccludedY[k] = visionStartY + visionLineLength * Math.sin(visionTotalAngle);
+//						visionResults[k * 3] = body.hue;
+//						visionResults[k * 3 + 1] = body.saturation;
+//						visionResults[k * 3 + 2] = body.brightness;
+//					}
+//				}
+//			}
+//		}
+//	}
+//
 	public int getColorAt(double x, double y) {
 		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
 			// return board.tiles[(int) (x)][(int) (y)].getColor();
@@ -541,21 +575,21 @@ public class Creature extends SoftBody {
 			return board.BACKGROUND_COLOR;
 		}
 	}
-
-	public double distance(double x1, double y1, double x2, double y2) {
-		return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-	}
-
-	public void addPVOs(int x, int y, ArrayList<SoftBody> PVOs) {
-		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
-			for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
-				SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
-				if (!PVOs.contains(newCollider) && newCollider != this) {
-					PVOs.add(newCollider);
-				}
-			}
-		}
-	}
+//
+//	public double distance(double x1, double y1, double x2, double y2) {
+//		return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
+//	}
+//
+//	public void addPVOs(int x, int y, ArrayList<SoftBody> PVOs) {
+//		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
+//			for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
+//				SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
+//				if (!PVOs.contains(newCollider) && newCollider != this) {
+//					PVOs.add(newCollider);
+//				}
+//			}
+//		}
+//	}
 
 	public void returnToEarth() {
 		int pieces = 20;
@@ -607,7 +641,13 @@ public class Creature extends SoftBody {
 				double newMouthHue = 0;
 				int parentsTotal = parents.size();
 				String[] parentNames = new String[parentsTotal];
-				Brain newBrain = ModLoader.getOffspringBrain(parents);
+//				List<List<CreaturePeripheral>> parentPeripherals = new ArrayList<>();
+//				for(Creature p : parents) {
+//					parentPeripherals.add(p.peripherals);
+//				}
+				
+				List<CreaturePeripheral> newPeripherals = ModLoader.createPeripherals();//ModLoader.getOffspringPeripherals(parentPeripherals);
+				Brain newBrain = ModLoader.getOffspringBrain(newPeripherals, parents);
 //				Axon[][][] newBrain = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
 //				double[][] newNeurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
 //				float randomParentRotation = EvolvioMod.main.random(0, 1);
@@ -655,7 +695,7 @@ public class Creature extends SoftBody {
 //						newMouthHue));
 				Creature baby = new Creature(newPX, newPY, 0, 0, babySize, density, newHue, newSaturation,
 						newBrightness, board, board.year, EvolvioMod.main.random(0, (float) (2 * Math.PI)), 0,
-						stitchName(parentNames), andifyParents(parentNames), true, newBrain, highestGen + 1,
+						stitchName(parentNames), andifyParents(parentNames), true, newBrain, newPeripherals, highestGen + 1,
 						newMouthHue);
 				
 				ModLoader.setOffspringAttributes(baby, parents, board);

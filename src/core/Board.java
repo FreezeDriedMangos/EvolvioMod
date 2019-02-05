@@ -31,7 +31,7 @@ public class Board {
 	final int ROCK_COLOR = EvolvioMod.main.color(0, 0, 0.5f);
 	final int BACKGROUND_COLOR = EvolvioMod.main.color(0, 0, 0.1f);
 	final float MINIMUM_SURVIVABLE_SIZE = 0.06f;
-	final float CREATURE_STROKE_WEIGHT = 0.6f;
+	public final float CREATURE_STROKE_WEIGHT = 0.6f;
 	public ArrayList[][] softBodiesInPositions;
 	ArrayList<SoftBody> rocks;
 	ArrayList<Creature> creatures;
@@ -465,7 +465,7 @@ public class Board {
 		}
 		for (int i = 0; i < creatures.size(); i++) {
 			creatures.get(i).applyMotions(timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-			creatures.get(i).see(timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+			//creatures.get(i).see(timeStep * OBJECT_TIMESTEPS_PER_YEAR);
 		}
 		if (Math.floor(fileSaveTimes[1] / imageSaveInterval) != Math.floor(year / imageSaveInterval)) {
 			prepareForFileSave(1);
@@ -584,7 +584,7 @@ public class Board {
 								0, 0, EvolvioMod.main.random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1,
 								EvolvioMod.main.random(0, 1), 1, 1, this, year,
 								EvolvioMod.main.random(0, 2 * EvolvioMod.main.PI), 0, "", "[PRIMORDIAL]", true, null,
-								/*null,*/ 1, EvolvioMod.main.random(0, 1)));
+								null, 1, EvolvioMod.main.random(0, 1)));
 			}
 		}
 	}
