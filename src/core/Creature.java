@@ -75,7 +75,7 @@ public class Creature extends SoftBody {
 			String tparents, boolean mutateName, /*Axon[][][] tbrain, double[][] tneurons,*/ Brain tbrain, List<CreaturePeripheral> per, int tgen, double tmouthHue) {
 
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
-
+		
 		if(tbrain == null) {
 			peripherals = ModLoader.createPeripherals();
 			brain = ModLoader.createBrain(this, tb);
@@ -461,7 +461,7 @@ public class Creature extends SoftBody {
 
 	public void fight(double amount, double timeStep) {
 		if(amount != brain.getOutput("fight"))
-		System.out.println(amount + " from brain: " + brain.getOutput("fight"));
+			System.out.println(amount + " from brain: " + brain.getOutput("fight"));
 		
 		if (amount > 0 && board.year - birthTime >= MATURE_AGE) {
 			fightLevel = amount;
@@ -625,6 +625,10 @@ public class Creature extends SoftBody {
 					}
 				}
 			}
+
+			ArrayList<Creature> parentMasterList = new ArrayList<>();
+			parentMasterList.addAll(parents);
+			
 			if (availableEnergy > babySize) {
 				double newPX = EvolvioMod.main.random(-0.01f, 0.01f);
 				double newPY = EvolvioMod.main.random(-0.01f, 0.01f); // To avoid landing directly on parents, resulting
@@ -665,6 +669,7 @@ public class Creature extends SoftBody {
 //						newNeurons[x][y] = parentForAxon.neurons[x][y];
 //					}
 //				}
+				
 				for (int i = 0; i < parentsTotal; i++) {
 					int chosenIndex = (int) EvolvioMod.main.random(0, parents.size());
 					Creature parent = parents.get(chosenIndex);
@@ -692,9 +697,10 @@ public class Creature extends SoftBody {
 						stitchName(parentNames), andifyParents(parentNames), true, newBrain, newPeripherals, highestGen + 1,
 						newMouthHue);
 				
-				ModLoader.setOffspringAttributes(baby, parents, board);
+				ModLoader.setOffspringAttributes(baby, parentMasterList, board);
 				
-				board.creatures.add(baby);
+				//board.creatures.add(baby);
+				board.addCreature(baby);
 			}
 		}
 	}
@@ -882,15 +888,15 @@ public class Creature extends SoftBody {
 	 * } public double getVisionStartY(){ return
 	 * py;//+getRadius()*Math.sin(rotation); }
 	 */
-	public double getVisionEndX(int i) {
-		double visionTotalAngle = rotation + visionAngles[i];
-		return px + visionDistances[i] * Math.cos(visionTotalAngle);
-	}
-
-	public double getVisionEndY(int i) {
-		double visionTotalAngle = rotation + visionAngles[i];
-		return py + visionDistances[i] * Math.sin(visionTotalAngle);
-	}
+//	public double getVisionEndX(int i) {
+//		double visionTotalAngle = rotation + visionAngles[i];
+//		return px + visionDistances[i] * Math.cos(visionTotalAngle);
+//	}
+//
+//	public double getVisionEndY(int i) {
+//		double visionTotalAngle = rotation + visionAngles[i];
+//		return py + visionDistances[i] * Math.sin(visionTotalAngle);
+//	}
 
 	public double getEnergyLevel() {
 		return energy;

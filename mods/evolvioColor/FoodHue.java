@@ -1,4 +1,4 @@
-package evolvioColor.tileAttributes;
+package evolvioColor;
 
 import core.Board;
 import core.EvolvioMod;

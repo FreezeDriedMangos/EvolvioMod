@@ -2,6 +2,10 @@ package core;
 
 import java.util.ArrayList;
 
+import com.pelletier.QuadTree;
+import com.pelletier.geometry.RectangleObject;
+
+import core.modAPI.CreatureAttribute;
 import processing.core.PFont;
 
 public class Board {
@@ -33,6 +37,8 @@ public class Board {
 	final float MINIMUM_SURVIVABLE_SIZE = 0.06f;
 	public final float CREATURE_STROKE_WEIGHT = 0.6f;
 	public ArrayList[][] softBodiesInPositions;
+	//private QuadTree creatureQuadTree;
+	
 	ArrayList<SoftBody> rocks;
 	ArrayList<Creature> creatures;
 	Creature selectedCreature = null;
@@ -71,6 +77,7 @@ public class Board {
 		tiles = new Tile[w][h];
 		for (int x = 0; x < boardWidth; x++) {
 			for (int y = 0; y < boardHeight; y++) {
+				// bigForce controls how big the land masses are
 				float bigForce = EvolvioMod.main.pow(((float) y) / boardHeight, 0.5f);
 				float fertility = EvolvioMod.main.noise(x * stepSize * 3, y * stepSize * 3) * (1 - bigForce) * 5.0f
 						+ EvolvioMod.main.noise(x * stepSize * 0.5f, y * stepSize * 0.5f) * bigForce * 5.0f - 1.5f;
@@ -89,6 +96,7 @@ public class Board {
 				softBodiesInPositions[x][y] = new ArrayList<SoftBody>(0);
 			}
 		}
+		//creatureQuadTree = new QuadTree();
 
 		ROCKS_TO_ADD = rta;
 		rocks = new ArrayList<SoftBody>(0);
@@ -305,13 +313,21 @@ public class Board {
 			EvolvioMod.main.text("Hue: " + EvolvioMod.main.nf((float) (selectedCreature.hue), 0, 2), 10, 550, 210, 255);
 			//EvolvioMod.main.text("Mouth hue: " + EvolvioMod.main.nf((float) (selectedCreature.secondaryHue), 0, 2), 10,
 			//		575, 210, 255);
-
+			
+			final float textHeight = EvolvioMod.main.textAscent() + EvolvioMod.main.textDescent();
+			int attNum = 1;
+			for(CreatureAttribute<?> att : selectedCreature.attributes.values()) {
+				EvolvioMod.main.text(att.getName() + ": " + att.getValue(), 10, 570 + (attNum++)*textHeight);
+			}
+			
 			if (userControl) {
+				attNum++;
+				
 				EvolvioMod.main.text(
 						"Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color"
 								+ "\nI,K: Change mouth color\nB: Give birth (Not possible if under "
 								+ Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)",
-						10, 625, 250, 400);
+						10, /*625*/570 + (attNum++)*textHeight, 250, 400);
 			}
 			EvolvioMod.main.pushMatrix();
 			EvolvioMod.main.translate(400, 80);
@@ -579,12 +595,13 @@ public class Board {
 				c.addEnergy(c.SAFE_SIZE);
 				c.reproduce(c.SAFE_SIZE, timeStep);
 			} else {
-				creatures
-						.add(new Creature(EvolvioMod.main.random(0, boardWidth), EvolvioMod.main.random(0, boardHeight),
+				Creature c =
+						(new Creature(EvolvioMod.main.random(0, boardWidth), EvolvioMod.main.random(0, boardHeight),
 								0, 0, EvolvioMod.main.random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1,
 								EvolvioMod.main.random(0, 1), 1, 1, this, year,
 								EvolvioMod.main.random(0, 2 * EvolvioMod.main.PI), 0, "", "[PRIMORDIAL]", true, null,
 								null, 1, EvolvioMod.main.random(0, 1)));
+				addCreature(c);
 			}
 		}
 	}
@@ -638,5 +655,10 @@ public class Board {
 
 	public float getHeight() {
 		return boardHeight;
+	}
+
+	public void addCreature(Creature c) {
+		creatures.add(c);
+		//creatureQuadTree.addRectangleObject(new CreatureAreaBox(c));
 	}
 }

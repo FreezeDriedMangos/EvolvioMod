@@ -1,4 +1,4 @@
-package evolvioColor.tileAttributes;
+package evolvioOriginal;
 
 import core.Board;
 import core.Tile;
@@ -46,7 +46,7 @@ public class FoodLevel implements TileAttribute<Double> {
                     if(foodLevel < MAX_GROWTH_LEVEL){
                         double newDistToMax = (MAX_GROWTH_LEVEL-foodLevel)*Math.pow(2.71828182846,-growthChange*fertility*FOOD_GROWTH_RATE);
                         double foodGrowthAmount = (MAX_GROWTH_LEVEL-newDistToMax)-foodLevel;
-                        addFood(foodGrowthAmount,climateType,false);
+                        addFood(foodGrowthAmount, /*climateType,*/ false);
                     }
                 }else{ // Food is dying off. Exponentially approach 0.
                     removeFood(foodLevel-foodLevel*Math.pow(2.71828182846,growthChange*FOOD_GROWTH_RATE),false);
@@ -61,11 +61,11 @@ public class FoodLevel implements TileAttribute<Double> {
                 }*/
             }
             foodLevel = Math.max(foodLevel,0);
-            lastUpdateTime = updateTime;
+//            lastUpdateTime = updateTime;
         }
 	}
 	
-	public void addFood(double amount, double addedFoodType, boolean canCauseIteration){
+	public void addFood(double amount, /*double addedFoodType,*/ boolean canCauseIteration){
         if(canCauseIteration){
             //iterate();
         	System.err.println("You should've called update() - addFood");

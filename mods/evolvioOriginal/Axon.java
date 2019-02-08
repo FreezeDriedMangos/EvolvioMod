@@ -1,4 +1,4 @@
-package evolvioColor;
+package evolvioOriginal;
 
 public class Axon{
   final double MUTABILITY_MUTABILITY = 0.7;

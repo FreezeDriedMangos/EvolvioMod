@@ -158,6 +158,8 @@ public final class ModLoader {
 				e.printStackTrace();
 			}
 		}
+		
+		System.out.println(tileAttributes);
 	}
 
 	public static void initializeAttributes(Tile tile, Board board, float stepSize) {
@@ -264,9 +266,11 @@ public final class ModLoader {
 	}
 
 	public static void setOffspringAttributes(Creature baby, ArrayList<Creature> parents, Board board) {
+		System.out.println(parents);
 		for(Class<CreatureAttribute> attribute : creatureAttributes) {
 			try {
 				String attributeName = attribute.getConstructor().newInstance().getName();
+				System.out.println(attributeName);
 				
 				ArrayList<CreatureAttribute> parentAttributes = new ArrayList<>();
 				for(Creature parent : parents) {

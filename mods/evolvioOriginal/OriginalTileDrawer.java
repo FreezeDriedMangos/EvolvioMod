@@ -1,11 +1,11 @@
-package carnivory;
+package evolvioOriginal;
 
 import core.EvolvioMod;
 import core.Tile;
 import core.modAPI.TileDrawer;
-import evolvioOriginal.FoodLevel;
 
-public class CarnivoryTileDrawer implements TileDrawer {
+public class OriginalTileDrawer implements TileDrawer {
+
 	private static final float FOOD_TRANSPARENCY = 0.75f;
 	
 	public final int FERTILE_COLOR = EvolvioMod.main.color(31f/360f, 0.4f, 0.1f);//0.2f);
@@ -50,18 +50,12 @@ public class CarnivoryTileDrawer implements TileDrawer {
 			EvolvioMod.main.fill(0, 0, 1, 1);
 		}
 
-		double grassLevel = (Double) t.getAttribute("foodLevel").getValue();
-		double meatLevel = (Double) t.getAttribute("meatLevel").getValue();
-		double foodLevel = grassLevel+meatLevel;
+		double foodLevel = (Double) t.getAttribute("foodLevel").getValue();
 		
 		EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
 		EvolvioMod.main.textFont(EvolvioMod.main.font, /* 21 */35 * EvolvioMod.main.WINDOW_SCALE());
 		EvolvioMod.main.text(EvolvioMod.main.nf((float) (100 * foodLevel), 0, 2) + " yums",
 				(t.getPosX() + 0.5f) * scaleUp, (t.getPosY() + 0.3f) * scaleUp);
-		EvolvioMod.main.text("Grass: " + EvolvioMod.main.nf((float) (grassLevel*100), 0, 2),
-				(t.getPosX() + 0.5f) * scaleUp, (t.getPosY() + 0.6f) * scaleUp);
-		EvolvioMod.main.text("Meat: " + EvolvioMod.main.nf((float) (meatLevel*100), 0, 2),
-				(t.getPosX() + 0.5f) * scaleUp, (t.getPosY() + 0.9f) * scaleUp);
 	}
 
 	@Override
@@ -71,14 +65,11 @@ public class CarnivoryTileDrawer implements TileDrawer {
 		}
 		
 		float fertility = (float)((Double)t.getAttribute("fertility").getValue()).doubleValue();
-		double meatLevel = (Double)t.getAttribute("meatLevel").getValue();
 		double grassLevel = (Double)t.getAttribute("foodLevel").getValue();
-		
 		
 		int color = BARREN_COLOR;
 		color = EvolvioMod.main.lerpColor(color, FERTILE_COLOR, fertility, EvolvioMod.main.RGB);
 		color = EvolvioMod.main.lerpColor(color, GRASS_COLOR, FOOD_TRANSPARENCY * (float)(grassLevel/FoodLevel.MAX_GROWTH_LEVEL), EvolvioMod.main.RGB);
-		color = EvolvioMod.main.lerpColor(color, MEAT_COLOR, FOOD_TRANSPARENCY * (float)(meatLevel/Math.max(grassLevel, 1)), EvolvioMod.main.RGB);
 		
 		return color;
 	}

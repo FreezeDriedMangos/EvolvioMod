@@ -62,5 +62,4 @@ public class MouthHueSensor implements CreaturePeripheral {
 		 */
 		EvolvioMod.main.popMatrix();
 	}
-	// remove literal references in EvolvioBrain
 }

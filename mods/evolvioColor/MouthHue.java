@@ -1,4 +1,4 @@
-package evolvioColor.creatureAttributes;
+package evolvioColor;
 
 import java.util.ArrayList;
 

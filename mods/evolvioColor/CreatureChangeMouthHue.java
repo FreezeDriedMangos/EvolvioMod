@@ -1,4 +1,4 @@
-package evolvioColor.creatureAttributes;
+package evolvioColor;
 
 import core.Board;
 import core.Creature;

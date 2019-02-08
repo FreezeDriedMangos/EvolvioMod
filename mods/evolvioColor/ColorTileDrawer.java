@@ -3,7 +3,7 @@ package evolvioColor;
 import core.EvolvioMod;
 import core.Tile;
 import core.modAPI.TileDrawer;
-import evolvioColor.tileAttributes.FoodLevel;
+import evolvioOriginal.FoodLevel;
 
 public class ColorTileDrawer implements TileDrawer {
     public final int barrenColor = EvolvioMod.main.color(0,0,1);

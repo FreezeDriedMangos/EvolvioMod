@@ -1,12 +1,11 @@
-package evolvioColor;
+package evolvioOriginal;
 
 import core.Creature;
 import core.Tile;
 import core.modAPI.CreatureEatBehavior;
-import evolvioOriginal.FoodLevel;
 import processing.core.PApplet;
 
-public class ColorEatBehavior implements CreatureEatBehavior {
+public class OriginalEatBehavior implements CreatureEatBehavior {
 	double EAT_ENERGY = 0.05;
 	  
 	// TODO: make these CreatureAttributes
@@ -32,16 +31,7 @@ public class ColorEatBehavior implements CreatureEatBehavior {
         t.update();
         ((FoodLevel)t.getAttribute("foodLevel")).removeFood(foodToEat, false);
         
-        double cMouthHue = (Double)c.getAttribute("mouthHue").getValue();
-        double tFoodHue = (Double)t.getAttribute("foodHue").getValue();
-        
-        double foodDistance = Math.abs(tFoodHue-cMouthHue); //TODO make foodType a TileAttribute
-        double multiplier = 1.0-foodDistance/FOOD_SENSITIVITY;
-        if(multiplier >= 0){
-          c.addEnergy(foodToEat*multiplier);
-        }else{
-          c.loseEnergy(-foodToEat*multiplier);
-        }
+        c.addEnergy(foodToEat);
         c.loseEnergy(attemptedAmount*EAT_ENERGY*timeStep);
 	}
 
@@ -56,7 +46,7 @@ public class ColorEatBehavior implements CreatureEatBehavior {
 		t.update();
 	
 		FoodLevel l = (FoodLevel) t.getAttribute("foodLevel");
-		l.addFood(amount, /*c.getHue(),*/ false);
+		l.addFood(amount, false);
 	}
-	
+
 }
