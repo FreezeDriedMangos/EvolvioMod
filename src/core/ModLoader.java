@@ -1,12 +1,31 @@
 package core;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Panel;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
 
 import core.modAPI.AdditionalBrainIO;
 import core.modAPI.Brain;
@@ -66,7 +85,168 @@ public final class ModLoader {
 		}
 		
 		System.out.println(paths);
-		for (Path p : paths) {
+		
+		for(int i = 0; i < paths.size(); i++) {
+			String fileName = paths.get(i).getFileName().toString();
+			String extention = fileName.split("\\.")[1];
+			if(!extention.equals("class"))
+				paths.remove(i--);
+		}
+		
+		
+		// display the mods in a window
+			
+		JFrame frame = new JFrame("Mod Select");
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // allows me to manually close the window
+		frame.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                int confirmLoad = JOptionPane.showConfirmDialog(null, "Are these mods okay?");
+                if(confirmLoad == 0) {
+                	System.out.println("calling finishLoading with " + paths);
+                	finishLoading(paths);
+                	frame.dispose();
+                }
+            }
+        });
+		
+		frame.setSize(500,500);
+		
+		Panel contentPanel = new Panel();
+		BoxLayout vert = new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS);
+		contentPanel.setLayout(vert);
+		
+		JScrollPane pane = new JScrollPane(contentPanel);
+		frame.add(pane);
+		
+		
+		
+		int index = 0;
+		while(index < paths.size()) {
+			index = makeListingForMod(paths, index, contentPanel);
+		}
+		
+		frame.pack();
+		frame.setVisible(true);
+		frame.setAlwaysOnTop(true);
+//		frame.validate();
+//        frame.repaint();
+		frame.toFront();
+			
+	}
+	
+	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel) {
+		
+		int index = startIndex;
+		String currentModname = paths.get(startIndex).getName(1).toString();
+		String currentModnameReadable = splitCamelCase(currentModname);
+		
+		ArrayList<Path> thisModsPaths = new ArrayList<>();
+		ArrayList<JCheckBox> thisModsCheckBoxes = new ArrayList<>();
+		
+		/* Make the header for this mod */ {
+			Panel panel = new Panel();
+			BoxLayout layout = new BoxLayout(panel, BoxLayout.LINE_AXIS);
+			panel.setLayout(layout);
+			
+			JCheckBox box = new JCheckBox();
+			box.setSelected(true);
+			box.addItemListener(new ItemListener() { 
+				ArrayList<Path> thesePaths = thisModsPaths;
+				ArrayList<JCheckBox> theseBoxes = thisModsCheckBoxes;
+				
+	            public void itemStateChanged(ItemEvent e) {  
+	            	 if(e.getStateChange() == 1) {
+	            		 paths.addAll(thesePaths);
+	            	 } else {
+	            		 paths.removeAll(thesePaths);
+	            	 }
+	            	 
+	            	 for(JCheckBox box : theseBoxes) {
+	            		 box.setSelected(e.getStateChange() == 1);
+	            	 }
+	              }    
+	           });    
+			
+
+			JLabel label = new JLabel(currentModnameReadable);
+			Font font = label.getFont();
+			font = font.deriveFont(
+			    Collections.singletonMap(
+			        TextAttribute.SIZE, 20));
+			label.setFont(font);
+			
+			panel.add(box, Component.LEFT_ALIGNMENT);
+			panel.add(label, Component.LEFT_ALIGNMENT);
+			panel.add(new JLabel("    "));
+			panel.add(Box.createHorizontalGlue()); // this forces left alignment (because Component.LEFT_ALIGNMENT didn't work)
+			contentPanel.add(panel);
+		}
+		
+		// make listings for every file of this mod
+		for(; index < paths.size(); index++) {
+			if(!paths.get(index).getName(1).toString().equals(currentModname)) {
+				return index;
+			}
+			Path p = paths.get(index);
+			
+			Panel panel = new Panel();
+			BoxLayout layout = new BoxLayout(panel, BoxLayout.LINE_AXIS);
+			panel.setLayout(layout);
+			
+			
+			panel.add(new JLabel("    "), Component.LEFT_ALIGNMENT);
+			
+			JCheckBox box = new JCheckBox();
+			box.setSelected(true);
+			box.addItemListener(new ItemListener() { 
+				Path path = p;
+				
+	            public void itemStateChanged(ItemEvent e) {  
+	            	 if(e.getStateChange() == 1) {
+	            		 paths.add(path);
+	            		 System.out.println("added " + path.toString());
+	            	 } else {
+	            		 paths.remove(path);
+	            		 System.out.println("removed " + path.toString());
+	            	 }
+	              }    
+	           });    
+			
+			thisModsCheckBoxes.add(box);
+			
+			panel.add(box, Component.LEFT_ALIGNMENT);
+			panel.add(new JLabel(p.subpath(1, p.getNameCount()).toString()), Component.LEFT_ALIGNMENT);
+			panel.add(new JLabel("    "));
+			panel.add(Box.createHorizontalGlue());
+			contentPanel.add(panel, Component.LEFT_ALIGNMENT);
+		}
+		
+		return index;
+	}
+	
+	// function credit to polygenelubricants on StackOverflow
+	// https://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
+	private static String splitCamelCase(String string) {
+		if(string.equals("")) return "";
+		
+		string = Character.toUpperCase(string.charAt(0)) + string.substring(1);
+		
+		return string.replaceAll(
+			      String.format("%s|%s|%s",
+			         "(?<=[A-Z])(?=[A-Z][a-z])",
+			         "(?<=[^A-Z])(?=[A-Z])",
+			         "(?<=[A-Za-z])(?=[^A-Za-z])"
+			      ),
+			      " "
+			   );
+	}
+
+	private static void finishLoading(ArrayList<Path> modList) {
+		// load the mods
+		
+		System.out.println("final modlist " + modList);
+		
+		for (Path p : modList) {
 			// if the path doesn't end with ".class", skip this one
 			String fileName = p.getFileName().toString();
 			String extention = fileName.split("\\.")[1];
@@ -91,9 +271,9 @@ public final class ModLoader {
 					if(inter.getCanonicalName().equals("core.modAPI.CreatureEatBehavior")) {
 						creatureEatBehavior = (CreatureEatBehavior) c.getConstructor().newInstance(); 
 					}
-//					if(inter.getCanonicalName().equals("core.modAPI.CreaturePeripheralDrawer")) {
-//						creaturePeripheralDrawers.add((CreaturePeripheralDrawer) c.getConstructor().newInstance()); 
-//					}
+//							if(inter.getCanonicalName().equals("core.modAPI.CreaturePeripheralDrawer")) {
+//								creaturePeripheralDrawers.add((CreaturePeripheralDrawer) c.getConstructor().newInstance()); 
+//							}
 					if(inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
 						tileDrawer = (TileDrawer) c.getConstructor().newInstance(); 
 					}
@@ -127,9 +307,9 @@ public final class ModLoader {
 					if(inter.getCanonicalName().equals("core.modAPI.CreaturePeripheral")) {
 						creaturePeripherals.add((Class<CreaturePeripheral>) c);
 					}
-//					if(inter.getCanonicalName().equals("core.modAPI.BrainInput")) {
-//						brainInputs.add((Class<BrainInput>) c);
-//					}
+//							if(inter.getCanonicalName().equals("core.modAPI.BrainInput")) {
+//								brainInputs.add((Class<BrainInput>) c);
+//							}
 				}
 				
 	            if(c.getSuperclass().getCanonicalName().equals("Battle")){
@@ -160,6 +340,19 @@ public final class ModLoader {
 		}
 		
 		System.out.println(tileAttributes);
+		String missing = "";
+		missing += brainModel          == null? "Brain.java"               : "";  
+		missing += brainDrawer         == null? "BrainDrawer.java"         : ""; 
+		missing += creatureEatBehavior == null? "CreatureEatBehavior.java" : ""; 
+		missing += tileDrawer          == null? "TileDrawer.java"          : ""; 
+		
+		if(!missing.equals("")) {
+			JOptionPane.showConfirmDialog(null, "Warning: missing implementations for some critical interfaces. Please try enabling more mods.\nMissing implementations:\n"+missing);
+		}
+		
+		EvolvioMod.main.finishSetup();
+		
+//		EvolvioMod.finishStartup(); // temp
 	}
 
 	public static void initializeAttributes(Tile tile, Board board, float stepSize) {

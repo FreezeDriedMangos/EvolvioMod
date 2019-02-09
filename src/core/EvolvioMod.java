@@ -54,10 +54,18 @@ public class EvolvioMod extends PApplet {
 	Component contentPane;
 	
 	float lastDrawTime = 0;
+	private boolean finishedSetup = false;
 	
 	public static void main(String args[]) {
+
+		ModLoader.init();
+
 		PApplet.main("core.EvolvioMod");
 	}
+//	public static void finishStartup() {
+//
+//		PApplet.main("core.EvolvioMod");
+//	}
 
 	public float WINDOW_SCALE() {
 		try{
@@ -75,12 +83,8 @@ public class EvolvioMod extends PApplet {
 	public void setup() {
 		EvolvioMod.main = this;
 		
-		//TODO: colorMode(HSB); causes all colors to draw as black
-		// I believe it has something to do with how I replaced "color" with "int"
 		colorMode(HSB, 1.0f);
 		font = super.loadFont("Jygquip1-48.vlw");
-		
-		ModLoader.init();
 		
 		float initScale = 0.6f;
 		size((int)(WINDOW_WIDTH*initScale), (int)(WINDOW_HEIGHT*initScale)); 
@@ -107,6 +111,9 @@ public class EvolvioMod extends PApplet {
 		        lastHeight = frame.getHeight();
 		    }
 		});
+		
+		//
+//		ModLoader.init();
 //		contentPane.addMouseWheelListener(new MouseWheelListener(){
 //			public void mouseWheelMoved(MouseWheelEvent event) {
 //				System.out.println("scrolling is happening!");
@@ -114,14 +121,20 @@ public class EvolvioMod extends PApplet {
 //			}
 //		});	
 		
-		System.out.println("frame components");
-		for(Component c : frame.getComponents()) {
-			System.out.println(c);
-		}
+//		System.out.println("frame components");
+//		for(Component c : frame.getComponents()) {
+//			System.out.println(c);
+//		}
 		
+		
+	}
+	
+	void finishSetup() {
 		evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, 
-		ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
+				ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
 		resetZoom();
+		
+		finishedSetup = true;
 	}
 	
 	public int getDrawspaceHeight() {
@@ -133,6 +146,8 @@ public class EvolvioMod extends PApplet {
 
 	@Override
 	public void draw() {
+		if(!finishedSetup) { return; }
+		
 		// Carykh's code
 		for (int iteration = 0; iteration < evoBoard.playSpeed; iteration++) {
 		    evoBoard.iterate(TIME_STEP);

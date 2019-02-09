@@ -36,7 +36,7 @@ public class FoodLevel implements TileAttribute<Double> {
             double growthChange = board.getGrowthOverTimeRange(lastUpdateTime,updateTime);
             
             double fertility = (Double) t.getAttribute("fertility").getValue();
-            double climateType = (Double) t.getAttribute("foodHue").getValue();
+            //double climateType = (Double) t.getAttribute("foodHue").getValue();
             
             
             if(fertility > 1){ // This means the tile is water.
