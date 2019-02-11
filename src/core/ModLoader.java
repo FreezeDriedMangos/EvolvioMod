@@ -119,19 +119,7 @@ public final class ModLoader {
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // allows me to manually close the window
 		frame.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
-            	System.out.println("Warning text: " + warningLabel.getText());
-            	
-                if(!warningLabel.getText().equals("")) {
-                	JOptionPane.showMessageDialog(null, warningLabel.getText());//WARNING_MESSAGE(warningLabel.getText());
-                	return;
-                }
-            	
-            	int confirmLoad = JOptionPane.showConfirmDialog(null, "Are these mods okay?");
-                if(confirmLoad == 0) {
-                	System.out.println("calling finishLoading with " + paths);
-                	finishLoading(paths);
-                	frame.dispose();
-                }
+            	System.exit(0);
             }
         });
 		
@@ -161,23 +149,42 @@ public final class ModLoader {
 		}
 		
 
-		//Panel warningPanel = new Panel();
-		//warningPanel.setLayout(new BoxLayout(warningPanel, BoxLayout.PAGE_AXIS));
+		Panel buttonPanel = new Panel();
+		buttonPanel.setLayout(new BorderLayout());
 		//warningPanel.add(Box.createHorizontalGlue());
-		JButton warningButton = new JButton("warnings");
-		warningButton.addActionListener(new ActionListener() {
+//		JButton warningButton = new JButton("warnings");
+//		warningButton.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				if(warningLabel.getText().equals("")) {
+//					JOptionPane.showMessageDialog(frame, "No warnings :)");
+//				} else {
+//					JOptionPane.showMessageDialog(frame, warningLabel.getText());
+//				}
+//			}
+//		});
+		JButton doneButton = new JButton("Done");
+		doneButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(warningLabel.getText().equals("")) {
-					JOptionPane.showMessageDialog(null, "No warnings :)");
-				} else {
-					JOptionPane.showMessageDialog(null, warningLabel.getText());
+				if(!warningLabel.getText().equals("")) {
+					JOptionPane.showMessageDialog(frame, warningLabel.getText());//WARNING_MESSAGE(warningLabel.getText());
+					return;
 				}
+					            	
+				int confirmLoad = JOptionPane.showConfirmDialog(frame, "Launch with selected mods?", "Ready to launch?", JOptionPane.OK_CANCEL_OPTION);
+				if(confirmLoad == 0) {
+					System.out.println("calling finishLoading with " + paths);
+                	finishLoading(paths);
+                	frame.dispose();
+                }
 			}
 		});
 		//warningPanel.add(warningButton);
 		//contentPanel.add(warningPanel);
-		contentPanel.add(warningButton);
+		buttonPanel.add(doneButton, BorderLayout.CENTER);
+//		buttonPanel.add(warningButton);
+		contentPanel.add(buttonPanel);
 		
 		int index = 0;
 		while(index < paths.size()) {
