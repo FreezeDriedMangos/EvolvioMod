@@ -1,7 +1,6 @@
 package evolvioOriginal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +8,10 @@ import java.util.Map;
 import core.Board;
 import core.Creature;
 import core.EvolvioMod;
-import core.SoftBody;
 import core.modAPI.Brain;
-import core.modAPI.BrainDrawer;
 import processing.core.PFont;
 
-public class EvolvioBrain implements Brain, BrainDrawer {
+public class EvolvioBrain implements Brain {
 	final int BRAIN_WIDTH = 3;
 //	final int BRAIN_HEIGHT = 13;
 	final double AXON_START_MUTABILITY = 0.0005;
@@ -281,8 +278,8 @@ public class EvolvioBrain implements Brain, BrainDrawer {
 	}
 
 	@Override
-	public void drawBrain(Brain b, PFont font, float scaleUp, int mX, int mY) {
-		EvolvioBrain brain = (EvolvioBrain)b;
+	public void draw(PFont font, float scaleUp, int mX, int mY) {
+		EvolvioBrain brain = this;//(EvolvioBrain)b;
 		
 		final float neuronSize = 0.4f;
 		final float backgroundX = (-1.7f - neuronSize) * scaleUp;

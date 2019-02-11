@@ -156,7 +156,9 @@ public class Creature extends SoftBody {
 	}
 
 	public void drawBrain(PFont font, float scaleUp, int mX, int mY) {
-		ModLoader.brainDrawer.drawBrain(brain, font, scaleUp, mX, mY);
+//		ModLoader.brainDrawer.drawBrain(brain, font, scaleUp, mX, mY);
+		brain.draw(font, scaleUp, mX, mY);
+		
 //		final float neuronSize = 0.4f;
 //		EvolvioMod.main.noStroke();
 //		EvolvioMod.main.fill(0, 0, 0.4f);

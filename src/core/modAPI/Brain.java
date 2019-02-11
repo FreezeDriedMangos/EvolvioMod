@@ -5,6 +5,7 @@ import java.util.Map;
 
 import core.Board;
 import core.Creature;
+import processing.core.PFont;
 
 public interface Brain {
 	// output names will always include standard outputs like accelerate, turn
@@ -15,6 +16,7 @@ public interface Brain {
 	
 	public Brain getOffspring(List<Creature> parents, /*List<BrainInput> inputsRequired,*/ List<String> inputsRequired, List<String> outputsRequired);
 	
+	public void draw(PFont font, float scaleUp, int mX, int mY);
 	//TODO: future update: speciation
 //	public double getSpeciesDelta(Brain other);
 //	public boolean canMate(double speciesDelta);

@@ -1,9 +1,13 @@
 package core;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
@@ -16,10 +20,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,7 +35,7 @@ import javax.swing.WindowConstants;
 
 import core.modAPI.AdditionalBrainIO;
 import core.modAPI.Brain;
-import core.modAPI.BrainDrawer;
+//import core.modAPI.BrainDrawer;
 import core.modAPI.Button;
 import core.modAPI.CreatureAction;
 import core.modAPI.CreatureAttribute;
@@ -40,6 +46,15 @@ import core.modAPI.TileAttribute;
 import core.modAPI.TileDrawer;
 
 public final class ModLoader {
+	// ui
+	
+	protected static final Color MOD_LISTING_BACKGROUND_COLOR = new Color(225, 225, 225);
+	protected static final Color MOD_LISTING_BACKGROUND_COLOR_DISABLED = new Color(240, 240, 240);
+	private static final int MOD_FRAME_WIDTH = 500;
+	private static final int MOD_FRAME_HEIGHT = 500;
+	
+	// non ui
+	
 	public static final ArrayList<Class<Button>> buttons = new ArrayList<>();
 	public static final ArrayList<Class<TileAttribute>> tileAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAttribute>> creatureAttributes = new ArrayList<>();
@@ -54,7 +69,7 @@ public final class ModLoader {
 	
 	public static CreatureEatBehavior creatureEatBehavior;
 	public static TileDrawer          tileDrawer;
-	public static BrainDrawer         brainDrawer;
+//	public static BrainDrawer         brainDrawer;
 	/**
 	 * recursively looks in folder "mods" for any classes that implemnt any API
 	 * interfaces and loads them
@@ -95,12 +110,23 @@ public final class ModLoader {
 		
 		
 		// display the mods in a window
+		
+
+		JLabel warningLabel = new JLabel();
+		warningLabel.setForeground(Color.RED);
 			
 		JFrame frame = new JFrame("Mod Select");
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // allows me to manually close the window
 		frame.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
-                int confirmLoad = JOptionPane.showConfirmDialog(null, "Are these mods okay?");
+            	System.out.println("Warning text: " + warningLabel.getText());
+            	
+                if(!warningLabel.getText().equals("")) {
+                	JOptionPane.showMessageDialog(null, warningLabel.getText());//WARNING_MESSAGE(warningLabel.getText());
+                	return;
+                }
+            	
+            	int confirmLoad = JOptionPane.showConfirmDialog(null, "Are these mods okay?");
                 if(confirmLoad == 0) {
                 	System.out.println("calling finishLoading with " + paths);
                 	finishLoading(paths);
@@ -118,23 +144,55 @@ public final class ModLoader {
 		JScrollPane pane = new JScrollPane(contentPanel);
 		frame.add(pane);
 		
+		HashMap<Path, Panel> pathPanels = new HashMap<>();
+		HashMap<Path, Class> pathClasses = new HashMap<>();
+		for(Path p : paths) {
+			String fileName = p.getFileName().toString();
+			String extention = fileName.split("\\.")[1];
+			if(!extention.equals("class"))
+				continue;
+			
+			try {
+				String className = p.subpath(1, p.getNameCount()).toString().replace('/', '.');
+				className = className.substring(0, className.length()-(".class".length()));
+				Class<?> c = Class.forName(className);
+				pathClasses.put(p, c);
+			} catch (Exception e) {}
+		}
 		
+
+		//Panel warningPanel = new Panel();
+		//warningPanel.setLayout(new BoxLayout(warningPanel, BoxLayout.PAGE_AXIS));
+		//warningPanel.add(Box.createHorizontalGlue());
+		JButton warningButton = new JButton("warnings");
+		warningButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(warningLabel.getText().equals("")) {
+					JOptionPane.showMessageDialog(null, "No warnings :)");
+				} else {
+					JOptionPane.showMessageDialog(null, warningLabel.getText());
+				}
+			}
+		});
+		//warningPanel.add(warningButton);
+		//contentPanel.add(warningPanel);
+		contentPanel.add(warningButton);
 		
 		int index = 0;
 		while(index < paths.size()) {
-			index = makeListingForMod(paths, index, contentPanel);
+			index = makeListingForMod(paths, index, contentPanel, pathPanels, pathClasses, warningLabel);
 		}
+		refreshConflicts(paths, pathPanels, pathClasses, warningLabel);
 		
 		frame.pack();
+		frame.setSize(Math.max(frame.getWidth(), MOD_FRAME_WIDTH), frame.getHeight());
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		frame.setAlwaysOnTop(true);
-//		frame.validate();
-//        frame.repaint();
-		frame.toFront();
-			
 	}
 	
-	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel) {
+	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
 		
 		int index = startIndex;
 		String currentModname = paths.get(startIndex).getName(1).toString();
@@ -159,12 +217,18 @@ public final class ModLoader {
 	            		 paths.addAll(thesePaths);
 	            	 } else {
 	            		 paths.removeAll(thesePaths);
+	            		 for(Path q : thesePaths) {
+	            			 Panel temp = new Panel();
+		            		 pathPanels.get(q).setBackground(MOD_LISTING_BACKGROUND_COLOR_DISABLED);
+	            		 }
 	            	 }
 	            	 
 	            	 for(JCheckBox box : theseBoxes) {
 	            		 box.setSelected(e.getStateChange() == 1);
 	            	 }
-	              }    
+	            	 
+	            	 refreshConflicts(paths, pathPanels, pathClasses, warningLabel);
+	              }
 	           });    
 			
 
@@ -182,7 +246,7 @@ public final class ModLoader {
 			contentPanel.add(panel);
 		}
 		
-		// make listings for every file of this mod
+		// make listings for every file in this mod
 		for(; index < paths.size(); index++) {
 			if(!paths.get(index).getName(1).toString().equals(currentModname)) {
 				return index;
@@ -208,21 +272,181 @@ public final class ModLoader {
 	            	 } else {
 	            		 paths.remove(path);
 	            		 System.out.println("removed " + path.toString());
+	            		 pathPanels.get(path).setBackground(MOD_LISTING_BACKGROUND_COLOR_DISABLED);
 	            	 }
+	            	 
+	            	 refreshConflicts(paths, pathPanels, pathClasses, warningLabel);
 	              }    
 	           });    
 			
 			thisModsCheckBoxes.add(box);
 			
 			panel.add(box, Component.LEFT_ALIGNMENT);
-			panel.add(new JLabel(p.subpath(1, p.getNameCount()).toString()), Component.LEFT_ALIGNMENT);
-			panel.add(new JLabel("    "));
-			panel.add(Box.createHorizontalGlue());
-			contentPanel.add(panel, Component.LEFT_ALIGNMENT);
+			panel.add(new JLabel(p.subpath(2, p.getNameCount()).toString().split("\\.")[0]), Component.LEFT_ALIGNMENT);
+			
+			// TODO: add horizontal filler
+			//panel.add(new Box.Filler(new Dimension(1,1), new Dimension(10000,1), new Dimension(1000,1)));
+			
+			//panel.setPreferredSize(new Dimension(MOD_FRAME_HEIGHT, MOD_FRAME_WIDTH));
+			
+			Panel ids = new Panel();
+			ids.setLayout(new BoxLayout(ids, BoxLayout.LINE_AXIS));
+			addInterfaceIdentifiers(ids, pathClasses.get(p));
+			ids.add(new JLabel("    "));
+			
+			//panel.add(Box.createHorizontalGlue());
+			
+			Panel groupPanel = new Panel();
+			groupPanel.setLayout(new BorderLayout());
+			groupPanel.add(panel, BorderLayout.WEST);
+			groupPanel.add(ids, BorderLayout.EAST);
+			contentPanel.add(groupPanel, Component.LEFT_ALIGNMENT);
+			//contentPanel.add(panel, Component.LEFT_ALIGNMENT);
+			
+			pathPanels.put(p, groupPanel);
 		}
 		
 		return index;
 	}
+	
+	private static void addInterfaceIdentifiers(Panel panel, Class c) {
+		System.out.println("hi");
+		for (Class<?> inter : c.getInterfaces()) {
+			JLabel spacer = new JLabel("     ");
+			panel.add(spacer);
+			
+			if(inter.getCanonicalName().equals("core.modAPI.CreatureEatBehavior")) {
+				JLabel l = new JLabel("(Eat Behavior)");
+				l.setForeground(Color.ORANGE.darker());
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
+				// yellow
+				JLabel l = new JLabel("(Tile Drawer)");
+				l.setForeground(Color.YELLOW.darker());
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.AdditionalBrainIO")) {
+				JLabel l = new JLabel("(+BrainIO)");
+				l.setForeground(Color.GREEN);
+				panel.add(l);
+			}
+			
+			if(inter.getCanonicalName().equals("core.modAPI.Brain")) {
+				// red
+				JLabel l = new JLabel("(Brain Model)");
+				l.setForeground(Color.RED);
+				panel.add(l);
+			}
+			
+			//creature action, brain outputs
+
+			if(inter.getCanonicalName().equals("core.modAPI.Button")) {
+				JLabel l = new JLabel("(Button)");
+				l.setForeground(new Color(150, 150, 200));
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.TileAttribute")) {
+				JLabel l = new JLabel("(Tile Attribute)");
+				l.setForeground(new Color(0, 200, 150));
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.CreatureAttribute")) {
+				JLabel l = new JLabel("(Creature Attribute)");
+				l.setForeground(new Color(0, 150, 200));
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.CreatureAction")) {
+				JLabel l = new JLabel("(Creature Action)");
+				l.setForeground(new Color(150, 0, 200));
+				panel.add(l);
+			}
+			if(inter.getCanonicalName().equals("core.modAPI.CreaturePeripheral")) {
+				JLabel l = new JLabel("(Creature Peripheral)");
+				l.setForeground(new Color(200, 0, 150));
+				panel.add(l);
+			}
+		}
+	}
+
+	static void refreshConflicts(ArrayList<Path> paths, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
+		int brainModelConflict = 0;
+		int eatBehaviorConflict = 0;
+		int tileDrawerConflict = 0;
+		
+		for(Path p : paths) {
+			pathPanels.get(p).setBackground(MOD_LISTING_BACKGROUND_COLOR);
+			
+			try {
+				Class<?> c = pathClasses.get(p);
+				
+				for (Class<?> inter : c.getInterfaces()) {
+					if(inter.getCanonicalName().equals("core.modAPI.CreatureEatBehavior")) {
+						eatBehaviorConflict++; 
+					}
+					if(inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
+						tileDrawerConflict++;
+					}
+					
+					if(inter.getCanonicalName().equals("core.modAPI.Brain")) {
+						brainModelConflict++;
+					}
+				}
+			} catch (Exception e) {}
+		}
+		
+		String warning = "";
+		
+		if(eatBehaviorConflict == 0) {
+			warning += " No CreatureEatBehavior implementation selected!";
+		}
+		if(brainModelConflict == 0) {
+			warning += " No Brain implementation selected!";
+		}
+		if(tileDrawerConflict == 0) {
+			warning += " No TileDrawer implementation selected!";
+		}
+		if(eatBehaviorConflict > 1) {
+			warning += " Too many CreatureEatBehavior implementations selected!";
+		}
+		if(brainModelConflict > 1) {
+			warning += " Too many Brain implementations selected!";
+		}
+		if(tileDrawerConflict > 1) {
+			warning += " Too many TileDrawer implementation selected!";
+		}
+		warningLabel.setText(warning);
+		
+		if(eatBehaviorConflict == 1 && brainModelConflict == 1 && tileDrawerConflict == 1) {
+			return;
+		}
+		
+		for(Path p : paths) {
+			String fileName = p.getFileName().toString();
+			String extention = fileName.split("\\.")[1];
+			if(!extention.equals("class"))
+				continue;
+			
+			try {
+				Class<?> c = pathClasses.get(p);
+				
+				for (Class<?> inter : c.getInterfaces()) {
+					if((eatBehaviorConflict > 1 && inter.getCanonicalName().equals("core.modAPI.CreatureEatBehavior"))) {
+						Panel pan = pathPanels.get(p);
+						pan.setBackground(Color.ORANGE);
+					}
+					if(tileDrawerConflict > 1 && inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
+						Panel pan = pathPanels.get(p);
+						pan.setBackground(Color.YELLOW);
+					}
+					if(brainModelConflict > 1 && inter.getCanonicalName().equals("core.modAPI.Brain")) {
+						Panel pan = pathPanels.get(p);
+						pan.setBackground(Color.RED);
+					}
+				}
+			} catch (Exception e) {}
+		}
+	} 
 	
 	// function credit to polygenelubricants on StackOverflow
 	// https://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
@@ -277,9 +501,9 @@ public final class ModLoader {
 					if(inter.getCanonicalName().equals("core.modAPI.TileDrawer")) {
 						tileDrawer = (TileDrawer) c.getConstructor().newInstance(); 
 					}
-					if(inter.getCanonicalName().equals("core.modAPI.BrainDrawer")) {
-						brainDrawer = (BrainDrawer) c.getConstructor().newInstance(); 
-					}
+//					if(inter.getCanonicalName().equals("core.modAPI.BrainDrawer")) {
+//						brainDrawer = (BrainDrawer) c.getConstructor().newInstance(); 
+//					}
 					if(inter.getCanonicalName().equals("core.modAPI.AdditionalBrainIO")) {
 						AdditionalBrainIO io = ((AdditionalBrainIO) c.getConstructor().newInstance());
 						brainOutputs.addAll(io.getOutputs());
@@ -311,10 +535,6 @@ public final class ModLoader {
 //								brainInputs.add((Class<BrainInput>) c);
 //							}
 				}
-				
-	            if(c.getSuperclass().getCanonicalName().equals("Battle")){
-	                
-	            }
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -342,7 +562,7 @@ public final class ModLoader {
 		System.out.println(tileAttributes);
 		String missing = "";
 		missing += brainModel          == null? "Brain.java"               : "";  
-		missing += brainDrawer         == null? "BrainDrawer.java"         : ""; 
+//		missing += brainDrawer         == null? "BrainDrawer.java"         : ""; 
 		missing += creatureEatBehavior == null? "CreatureEatBehavior.java" : ""; 
 		missing += tileDrawer          == null? "TileDrawer.java"          : ""; 
 		
