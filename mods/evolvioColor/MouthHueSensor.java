@@ -8,9 +8,10 @@ import java.util.Map;
 import core.Board;
 import core.Creature;
 import core.EvolvioMod;
+import core.modAPI.CreatureFeatureDrawer;
 import core.modAPI.CreaturePeripheral;
 
-public class MouthHueSensor implements CreaturePeripheral {
+public class MouthHueSensor implements CreaturePeripheral, CreatureFeatureDrawer {
 
 	double mouthHue = 0;
 	

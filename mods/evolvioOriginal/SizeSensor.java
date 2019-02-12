@@ -34,10 +34,4 @@ public class SizeSensor implements CreaturePeripheral {
 		
 		return vals;
 	}
-
-	@Override
-	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw) {}
-
-	@Override
-	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw) {}
 }

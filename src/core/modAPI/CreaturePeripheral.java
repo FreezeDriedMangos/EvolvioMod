@@ -26,6 +26,4 @@ public interface CreaturePeripheral {
 	 * @return
 	 */
 	public Map<String, Double> getInputValues(Creature c, Board b, double timeStep);
-	public void preCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw);
-	public void postCreatureDraw(Creature c, Board b, float scaleUp, float camZoom, boolean overworldDraw);
 }

@@ -57,7 +57,7 @@ public class EvolvioBrain implements Brain {
 			for (int y = 0; y < BRAIN_HEIGHT; y++) {
 				for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
 					double startingWeight = 0;
-					if (y == BRAIN_HEIGHT - 1) {
+					if (true || y == BRAIN_HEIGHT - 1) {
 						startingWeight = (Math.random() * 2 - 1) * STARTING_AXON_VARIABILITY;
 					}
 					axons[x][y][z] = new Axon(startingWeight, AXON_START_MUTABILITY);
@@ -100,16 +100,16 @@ public class EvolvioBrain implements Brain {
 
 		//neurons[0][neurons.length-1] = 1;
 		
-		for (int x = 1; x < BRAIN_WIDTH; x++) {
-			for (int y = 0; y < BRAIN_HEIGHT - 1; y++) {
+		for (int layer = 1; layer < BRAIN_WIDTH; layer++) {
+			for (int i = 0; i < BRAIN_HEIGHT - 1; i++) {
 				double total = 0;
 				for (int input = 0; input < BRAIN_HEIGHT; input++) {
-					total += neurons[x - 1][input] * axons[x - 1][input][y].weight;
+					total += neurons[layer - 1][input] * axons[layer - 1][input][i].weight;
 				}
-				if (x == BRAIN_WIDTH - 1) {
-					neurons[x][y] = total;
+				if (layer == BRAIN_WIDTH - 1) {
+					neurons[layer][i] = total;
 				} else {
-					neurons[x][y] = sigmoid(total);
+					neurons[layer][i] = sigmoid(total);
 				}
 			}
 		}

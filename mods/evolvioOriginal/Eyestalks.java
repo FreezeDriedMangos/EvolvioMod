@@ -9,10 +9,11 @@ import core.Board;
 import core.Creature;
 import core.EvolvioMod;
 import core.SoftBody;
+import core.modAPI.CreatureFeatureDrawer;
 import core.modAPI.CreaturePeripheral;
 import processing.core.PConstants;
 
-public class Eyestalks implements CreaturePeripheral {
+public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 
 	float CROSS_SIZE = 0.022f;
 	final float BRIGHTNESS_THRESHOLD = 0.7f;
@@ -166,21 +167,21 @@ public class Eyestalks implements CreaturePeripheral {
 			float endX = (float) getVisionEndX(creature, i);
 			float endY = (float) getVisionEndY(creature, i);
 			EvolvioMod.main.line((float) (creature.px * scaleUp), (float) (creature.py * scaleUp), endX * scaleUp, endY * scaleUp);
-			EvolvioMod.main.noStroke();
-			EvolvioMod.main.fill(visionUIcolor);
-			EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
-					2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
-			EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
-					(float) (visionResults[i * 3 + 2]));
-			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
-			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+//			EvolvioMod.main.noStroke();
+//			EvolvioMod.main.fill(visionUIcolor);
+//			EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
+//					2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
+//			EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
+//					(float) (visionResults[i * 3 + 2]));
+//			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+//			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
+//			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
 		}
 	}
 	

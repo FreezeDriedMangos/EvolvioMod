@@ -3,7 +3,6 @@ package core;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
@@ -33,13 +32,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
-import core.modAPI.AdditionalBrainIO;
+//import core.modAPI.AdditionalBrainIO;
 import core.modAPI.Brain;
 //import core.modAPI.BrainDrawer;
 import core.modAPI.Button;
 import core.modAPI.CreatureAction;
 import core.modAPI.CreatureAttribute;
 import core.modAPI.CreatureEatBehavior;
+import core.modAPI.CreatureFeatureDrawer;
 import core.modAPI.CreaturePeripheral;
 //import core.modAPI.CreaturePeripheralDrawer;
 import core.modAPI.TileAttribute;
@@ -60,6 +60,7 @@ public final class ModLoader {
 	public static final ArrayList<Class<CreatureAttribute>> creatureAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAction>> creatureActions = new ArrayList<>();
 	public static final ArrayList<Class<CreaturePeripheral>> creaturePeripherals = new ArrayList<>();
+	public static final ArrayList<Class<CreatureFeatureDrawer>> creatureFeatureDrawers = new ArrayList<>();
 
 	public static ArrayList<String> brainOutputs = new ArrayList<>();
 	//public static ArrayList<String> brainInputs  = new ArrayList<>();
@@ -373,6 +374,11 @@ public final class ModLoader {
 				l.setForeground(new Color(200, 0, 150));
 				panel.add(l);
 			}
+			if(inter.getCanonicalName().equals("core.modAPI.CreatureFeatureDrawer")) {
+				JLabel l = new JLabel("(Creature Feature Drawer)");
+				l.setForeground(new Color(0, 200, 0));
+				panel.add(l);
+			}
 		}
 	}
 
@@ -512,8 +518,8 @@ public final class ModLoader {
 //						brainDrawer = (BrainDrawer) c.getConstructor().newInstance(); 
 //					}
 					if(inter.getCanonicalName().equals("core.modAPI.AdditionalBrainIO")) {
-						AdditionalBrainIO io = ((AdditionalBrainIO) c.getConstructor().newInstance());
-						brainOutputs.addAll(io.getOutputs());
+//						AdditionalBrainIO io = ((AdditionalBrainIO) c.getConstructor().newInstance());
+//						brainOutputs.addAll(io.getOutputs());
 						//brainInputs. addAll(io.getInputs());
 					}
 					
@@ -534,9 +540,14 @@ public final class ModLoader {
 					}
 					if(inter.getCanonicalName().equals("core.modAPI.CreatureAction")) {
 						creatureActions.add((Class<CreatureAction>) c);
+						CreatureAction act = ((CreatureAction) c.getConstructor().newInstance());
+						brainOutputs.addAll(act.getRequiredOutputs());
 					}
 					if(inter.getCanonicalName().equals("core.modAPI.CreaturePeripheral")) {
 						creaturePeripherals.add((Class<CreaturePeripheral>) c);
+					}
+					if(inter.getCanonicalName().equals("core.modAPI.CreatureFeatureDrawer")) {
+						creatureFeatureDrawers.add((Class<CreatureFeatureDrawer>) c);
 					}
 //							if(inter.getCanonicalName().equals("core.modAPI.BrainInput")) {
 //								brainInputs.add((Class<BrainInput>) c);
@@ -610,6 +621,12 @@ public final class ModLoader {
 			try {
 				CreaturePeripheral p = peripheral.newInstance();
 				creature.peripherals.add(p);
+			} catch (InstantiationException | IllegalAccessException e) { e.printStackTrace(); }
+		}
+		for(Class<CreatureFeatureDrawer> drawer : creatureFeatureDrawers) {
+			try {
+				CreatureFeatureDrawer d = drawer.newInstance();
+				creature.featureDrawers.add(d);
 			} catch (InstantiationException | IllegalAccessException e) { e.printStackTrace(); }
 		}
 	}

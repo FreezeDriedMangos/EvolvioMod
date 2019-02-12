@@ -7,6 +7,7 @@ import java.util.List;
 import core.modAPI.Brain;
 import core.modAPI.CreatureAction;
 import core.modAPI.CreatureAttribute;
+import core.modAPI.CreatureFeatureDrawer;
 import core.modAPI.CreaturePeripheral;
 import processing.core.PFont;
 
@@ -68,6 +69,7 @@ public class Creature extends SoftBody {
 	HashMap<String, CreatureAttribute> attributes = new HashMap<>();
 	List<CreatureAction> actions = new ArrayList<>();
 	List<CreaturePeripheral> peripherals = new ArrayList<>();
+	List<CreatureFeatureDrawer> featureDrawers = new ArrayList<>();
 	Brain brain;
 	
 	public Creature(double tpx, double tpy, double tvx, double tvy, double tenergy, double tdensity, double thue,
@@ -295,40 +297,19 @@ public class Creature extends SoftBody {
 //	}
 
 	public void drawSoftBody(float scaleUp, float camZoom, boolean overworldDraw) {
-		for(CreaturePeripheral peripheral : peripherals) {
-			peripheral.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		for(CreaturePeripheral peripheral : peripherals) {
+//			peripheral.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		}
+//		for(CreatureAction action : actions) {
+//			action.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		}
+		for(CreatureFeatureDrawer drawer : featureDrawers) {
+			drawer.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 		}
 		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		double radius = getRadius();
-//		if (showVision) {
-//			for (int i = 0; i < visionAngles.length; i++) {
-//				int visionUIcolor = EvolvioMod.main.color(0, 0, 1);
-//				if (visionResults[i * 3 + 2] > BRIGHTNESS_THRESHOLD) {
-//					visionUIcolor = EvolvioMod.main.color(0, 0, 0);
-//				}
-//				EvolvioMod.main.stroke(visionUIcolor);
-//				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-//				float endX = (float) getVisionEndX(i);
-//				float endY = (float) getVisionEndY(i);
-//				EvolvioMod.main.line((float) (px * scaleUp), (float) (py * scaleUp), endX * scaleUp, endY * scaleUp);
-//				EvolvioMod.main.noStroke();
-//				EvolvioMod.main.fill(visionUIcolor);
-//				EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
-//						2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
-//				EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
-//						(float) (visionResults[i * 3 + 2]));
-//				EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-//				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
-//				EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-//						(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
-//			}
-//		}
+		
 		EvolvioMod.main.noStroke();
 		if (fightLevel > 0) {
 			EvolvioMod.main.fill(0, 1, 1, (float) (fightLevel * 0.8));
@@ -372,8 +353,14 @@ public class Creature extends SoftBody {
 		}
 		
 
-		for(CreaturePeripheral peripheral : peripherals) {
-			peripheral.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		for(CreaturePeripheral peripheral : peripherals) {
+//			peripheral.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		}
+//		for(CreatureAction action : actions) {
+//			action.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+//		}
+		for(CreatureFeatureDrawer drawer : featureDrawers) {
+			drawer.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 		}
 	}
 
