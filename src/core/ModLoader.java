@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +56,6 @@ public final class ModLoader {
 	
 	// non ui
 	
-	public static final ArrayList<Class<Button>> buttons = new ArrayList<>();
 	public static final ArrayList<Class<TileAttribute>> tileAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAttribute>> creatureAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAction>> creatureActions = new ArrayList<>();
@@ -63,6 +63,7 @@ public final class ModLoader {
 	public static final ArrayList<Class<CreatureFeatureDrawer>> creatureFeatureDrawers = new ArrayList<>();
 
 	public static ArrayList<String> brainOutputs = new ArrayList<>();
+	public static final ArrayList<Button> buttons = new ArrayList<>();
 	//public static ArrayList<String> brainInputs  = new ArrayList<>();
 	//public static ArrayList<CreaturePeripheralDrawer> creaturePeripheralDrawers = new ArrayList<>();
 	
@@ -77,6 +78,8 @@ public final class ModLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void init() {
+		addCoreButtons();
+		
 		// default-required outputs
 		brainOutputs.add("hue");
 		brainOutputs.add("accelerate");
@@ -200,6 +203,15 @@ public final class ModLoader {
 		frame.setAlwaysOnTop(true);
 	}
 	
+	private static void addCoreButtons() {
+		buttons.add(new CoreButtons.ResetZoomButton());
+		buttons.add(new CoreButtons.ReorderButton());
+		buttons.add(new CoreButtons.ControlButton());
+		buttons.add(new CoreButtons.MaintainPopButton());
+		buttons.add(new CoreButtons.PlaySpeedButton());
+		
+	}
+
 	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
 		
 		int index = startIndex;
@@ -318,7 +330,6 @@ public final class ModLoader {
 	}
 	
 	private static void addInterfaceIdentifiers(Panel panel, Class c) {
-		System.out.println("hi");
 		for (Class<?> inter : c.getInterfaces()) {
 			JLabel spacer = new JLabel("     ");
 			panel.add(spacer);
@@ -530,7 +541,7 @@ public final class ModLoader {
 					//creature action, brain outputs
 
 					if(inter.getCanonicalName().equals("core.modAPI.Button")) {
-						buttons.add((Class<Button>) c);
+						buttons.add((Button) c.getConstructor().newInstance());
 					}
 					if(inter.getCanonicalName().equals("core.modAPI.TileAttribute")) {
 						tileAttributes.add((Class<TileAttribute>) c);
@@ -586,6 +597,11 @@ public final class ModLoader {
 		
 		if(!missing.equals("")) {
 			JOptionPane.showConfirmDialog(null, "Warning: missing implementations for some critical interfaces. Please try enabling more mods.\nMissing implementations:\n"+missing);
+		}
+		
+		
+		for(Button b : buttons) {
+			b.init();
 		}
 		
 		EvolvioMod.main.finishSetup();

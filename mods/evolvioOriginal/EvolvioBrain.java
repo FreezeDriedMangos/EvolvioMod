@@ -29,7 +29,7 @@ public class EvolvioBrain implements Brain {
 	double[] visionOccludedX = new double[visionAngles.length];
 	double[] visionOccludedY = new double[visionAngles.length];
 	double visionResults[] = new double[9];
-	int MEMORY_COUNT = 1;
+	int MEMORY_COUNT = 5;
 	double[] memories;
 
 	
@@ -49,7 +49,7 @@ public class EvolvioBrain implements Brain {
 		
 		inputs = inputsRequired;
 		outputs = outputsRequired;
-		BRAIN_HEIGHT = inputs.size() + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
+		BRAIN_HEIGHT = Math.max(inputs.size(), outputs.size()) + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
 		
 		axons = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
 		neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
@@ -95,7 +95,7 @@ public class EvolvioBrain implements Brain {
 		}
 		
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			neurons[0][inputs.size() + i] = memories[i];
+			neurons[0][(BRAIN_HEIGHT - MEMORY_COUNT) + i] = memories[i];
 		}
 
 		//neurons[0][neurons.length-1] = 1;
@@ -116,7 +116,7 @@ public class EvolvioBrain implements Brain {
 
 		int end = BRAIN_WIDTH - 1;
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			memories[i] = neurons[end][11 + i];
+			memories[i] = neurons[end][(BRAIN_HEIGHT-MEMORY_COUNT) + i];
 		}
 	}
 
@@ -218,18 +218,6 @@ public class EvolvioBrain implements Brain {
 		}
 		
 		return neurons[end][index];
-		
-//		switch(name) {
-//			case "hue":          return neurons[end][0];
-//			case "accelerate":   return neurons[end][1];
-//			case "turn":         return neurons[end][2];
-//			case "eat":          return neurons[end][3];
-//			case "fight":        return neurons[end][4];
-//			case "reproduce":    return neurons[end][5];
-//			case "secondaryHue": return neurons[end][10];
-//		}
-//		
-//		return 0;
 	}
 
 	@Override
@@ -419,6 +407,36 @@ public class EvolvioBrain implements Brain {
 		} else {
 			return EvolvioMod.main.color(0, 0, 1);
 		}
+	}
+	
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		
+		s.append("Axons:");
+		for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
+			s.append("\nLayer " + x + "\n");
+			for (int y = 0; y < BRAIN_HEIGHT; y++) {
+				for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
+					s.append(axons[x][y][z] + "\t");
+				}
+				s.append("\n");
+			}
+		}
+		
+		s.append("\n");
+		s.append("Memories:\n");
+		
+		for (int i = 0; i < MEMORY_COUNT; i++) {
+			s.append(i + ": " + memories[i] + "\n");
+		}
+		
+		return s.toString();
+	}
+
+	@Override
+	public Brain fromString(String s) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	//@Override

@@ -2,9 +2,7 @@ package core;
 
 import java.util.ArrayList;
 
-import com.pelletier.QuadTree;
-import com.pelletier.geometry.RectangleObject;
-
+import core.modAPI.Button;
 import core.modAPI.CreatureAttribute;
 import processing.core.PFont;
 
@@ -239,46 +237,69 @@ public class Board {
 				}
 			}
 			EvolvioMod.main.noStroke();
-			EvolvioMod.main.fill(buttonColor);
-			EvolvioMod.main.rect(10, 95, 220, 40);
-			EvolvioMod.main.rect(240, 95, 220, 40);
-			EvolvioMod.main.fill(0, 0, 1);
 			EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
-			EvolvioMod.main.text("Reset zoom", 120, 123);
-			String[] sorts = { "Biggest", "Smallest", "Youngest", "Oldest", "A to Z", "Z to A", "Highest Gen",
-					"Lowest Gen" };
-			EvolvioMod.main.text("Sort by: " + sorts[creatureRankMetric], 350, 123);
-
 			EvolvioMod.main.textFont(font, 19);
-			String[] buttonTexts = { "Brain Control", "Maintain pop. at " + creatureMinimum, "Screenshot now",
-					"-   Image every " + EvolvioMod.main.nf((float) imageSaveInterval, 0, 2) + " years   +",
-					"Text file now",
-					"-    Text every " + EvolvioMod.main.nf((float) textSaveInterval, 0, 2) + " years    +",
-					"-    Play Speed (" + playSpeed + "x)    +", "This button does nothing" };
-			if (userControl) {
-				buttonTexts[0] = "Keyboard Control";
-			}
-			for (int i = 0; i < 8; i++) {
-				float x = (i % 2) * 230 + 10;
-				float y = EvolvioMod.main.floor(i / 2) * 50 + 570;
+			
+			int padding = 10;
+			int numCols = 2;
+			for(int i = 0; i < ModLoader.buttons.size(); i++) { // col 2
+				Button button = ModLoader.buttons.get(i);
+				int x = getButtonX(i);
+				int y = getButtonY(i);
+				
 				EvolvioMod.main.fill(buttonColor);
-				EvolvioMod.main.rect(x, y, 220, 40);
-				if (i >= 2 && i < 6) {
-					double flashAlpha = 1.0 * Math.pow(0.5, (year - fileSaveTimes[i - 2]) * FLASH_SPEED);
-					EvolvioMod.main.fill(0, 0, 1, (float) flashAlpha);
-					EvolvioMod.main.rect(x, y, 220, 40);
-				}
+				EvolvioMod.main.rect(x, y, Button.STANDARD_BUTTON_WIDTH, Button.STANDARD_BUTTON_HEIGHT);
+
+				EvolvioMod.main.fill(0, 0, 1, button.getFlashAlpha());
+				EvolvioMod.main.rect(x, y, Button.STANDARD_BUTTON_WIDTH, Button.STANDARD_BUTTON_HEIGHT);
+
+				String line1 = button.getText();
+				String line2 = button.getSecondLineText();
+				
 				EvolvioMod.main.fill(0, 0, 1, 1);
-				EvolvioMod.main.text(buttonTexts[i], x + 110, y + 17);
-				if (i == 0) {
-				} else if (i == 1) {
-					EvolvioMod.main.text(
-							"-" + creatureMinimumIncrement + "                    +" + creatureMinimumIncrement,
-							x + 110, y + 37);
-				} else if (i <= 5) {
-					EvolvioMod.main.text(getNextFileName(i - 2), x + 110, y + 37);
-				}
+				if (line1 != null) EvolvioMod.main.text(line1, x + 110, y + 17);
+				if (line2 != null) EvolvioMod.main.text(line2, x + 110, y + 37);
 			}
+			
+//			EvolvioMod.main.rect(10, 95, 220, 40); // buttons are (220 x 40), col 1 starts at (10, 90)
+//			EvolvioMod.main.rect(240, 95, 220, 40); // col 2 starts at (240, 95)
+//			EvolvioMod.main.fill(0, 0, 1);
+//			EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
+//			EvolvioMod.main.text("Reset zoom", 120, 123);
+//			String[] sorts = { "Biggest", "Smallest", "Youngest", "Oldest", "A to Z", "Z to A", "Highest Gen",
+//					"Lowest Gen" };
+//			EvolvioMod.main.text("Sort by: " + sorts[creatureRankMetric], 350, 123);
+//
+//			EvolvioMod.main.textFont(font, 19);
+//			String[] buttonTexts = { "Brain Control", "Maintain pop. at " + creatureMinimum, "Screenshot now",
+//					"-   Image every " + EvolvioMod.main.nf((float) imageSaveInterval, 0, 2) + " years   +",
+//					"Text file now",
+//					"-    Text every " + EvolvioMod.main.nf((float) textSaveInterval, 0, 2) + " years    +",
+//					"-    Play Speed (" + playSpeed + "x)    +", "This button does nothing" };
+//			if (userControl) {
+//				buttonTexts[0] = "Keyboard Control";
+//			}
+//			for (int i = 0; i < 8; i++) {
+//				float x = (i % 2) * 230 + 10;
+//				float y = EvolvioMod.main.floor(i / 2) * 50 + 570;
+//				EvolvioMod.main.fill(buttonColor);
+//				EvolvioMod.main.rect(x, y, 220, 40);
+//				if (i >= 2 && i < 6) {
+//					double flashAlpha = 1.0 * Math.pow(0.5, (year - fileSaveTimes[i - 2]) * FLASH_SPEED);
+//					EvolvioMod.main.fill(0, 0, 1, (float) flashAlpha);
+//					EvolvioMod.main.rect(x, y, 220, 40);
+//				}
+//				EvolvioMod.main.fill(0, 0, 1, 1);
+//				EvolvioMod.main.text(buttonTexts[i], x + 110, y + 17);
+//				if (i == 0) {
+//				} else if (i == 1) {
+//					EvolvioMod.main.text(
+//							"-" + creatureMinimumIncrement + "                    +" + creatureMinimumIncrement,
+//							x + 110, y + 37);
+//				} else if (i <= 5) {
+//					EvolvioMod.main.text(getNextFileName(i - 2), x + 110, y + 37);
+//				}
+//			}
 		} else {
 			float energyUsage = (float) selectedCreature.getEnergyUsage(timeStep);
 			EvolvioMod.main.noStroke();
@@ -363,6 +384,21 @@ public class Board {
 		}
 	}
 
+	static int getButtonX(int i) {
+		int padding = Button.PADDING;
+		int col = i % Button.NUM_COLUMNS;
+		
+		int x = padding + col*(padding+Button.STANDARD_BUTTON_WIDTH);
+		return x;
+	}
+	static int getButtonY(int i) {
+		int padding = Button.PADDING;
+		int row = i / Button.NUM_COLUMNS;
+		
+		int y = /*95*/ 570 + row*(padding+Button.STANDARD_BUTTON_HEIGHT);
+		return y;
+	}
+	
 	void drawPopulationGraph(float x1, float x2, float y1, float y2) {
 		float barWidth = (x2 - x1) / ((float) (POPULATION_HISTORY_LENGTH));
 		EvolvioMod.main.noStroke();

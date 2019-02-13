@@ -78,6 +78,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/java-simple-quadtree.jar" sourcepath="lib/ryanp102694"/>
+	<classpathentry kind="lib" path="lib/gson-2.8.5.jar" sourcepath="lib/gson-2.8.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/clay/Desktop/Programming/Processing/projects/evolvioMod/EvolvioMod/lib/gson-2.8.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

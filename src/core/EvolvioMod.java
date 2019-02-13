@@ -4,8 +4,8 @@ import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
+import core.modAPI.Button;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -15,10 +15,16 @@ public class EvolvioMod extends PApplet {
 	 */
 	private static final long serialVersionUID = -5156677256654057134L;
 
+	public static final int MAX_PLAY_SPEED = 128;
+	
+
 	public static EvolvioMod main;
 	
-	Board evoBoard;
-	final int SEED = 51;
+	Board evoBoard; public Board getBoard() { return evoBoard; }
+	/**
+	 * 51 is the classic map
+	 */
+	final int SEED = (int)System.currentTimeMillis();//51;
 	final float NOISE_STEP_SIZE = 0.1f;
 	final int BOARD_WIDTH = 100;
 	final int BOARD_HEIGHT = 100;
@@ -97,7 +103,7 @@ public class EvolvioMod extends PApplet {
 		
 		contentPane = frame.getComponents()[0];
 		frame.addComponentListener(new ComponentAdapter() {
-		    int lastWidth = WINDOW_WIDTH;
+		    //int lastWidth = WINDOW_WIDTH;
 		    int lastHeight = WINDOW_HEIGHT;
 		    public void componentResized(ComponentEvent componentEvent) {
 		        // make sure aspect ratio is correct
@@ -107,7 +113,7 @@ public class EvolvioMod extends PApplet {
 		        	contentPane.setSize((int)(contentPane.getHeight() * ASPECT_RATIO), contentPane.getHeight());
 		        }
 		        
-		        lastWidth = frame.getWidth();
+		        //lastWidth = frame.getWidth();
 		        lastHeight = frame.getHeight();
 		    }
 		});
@@ -135,6 +141,8 @@ public class EvolvioMod extends PApplet {
 		resetZoom();
 		
 		finishedSetup = true;
+		
+		System.out.println(evoBoard.creatures.get(0).brain);
 	}
 	
 	public int getDrawspaceHeight() {
@@ -243,85 +251,10 @@ public class EvolvioMod extends PApplet {
 		if (adjustedMouseX < WINDOW_HEIGHT) {
 		    // so if mouseX is less than WINDOW_HEIGHT, the mouse is on the board (aka overworld map)
 		    dragging = 1;
+		    
+		    
 		} else {
-		    // otherwise it's on the menu ui
-		    if (abs(adjustedMouseX-(WINDOW_HEIGHT+65)) <= 60 && abs(adjustedMouseY-147) <= 60 && evoBoard.selectedCreature != null) {
-		            // TODO: figure out what button this is
-		            cameraX = (float)evoBoard.selectedCreature.px;
-		            cameraY = (float)evoBoard.selectedCreature.py;
-		            zoom = 16;
-		    } else if (adjustedMouseY >= 95 && adjustedMouseY < 135 && evoBoard.selectedCreature == null) { // TODO: figure out what this condition means
-		        if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_HEIGHT+230) {
-		            // reset zoom button
-		            resetZoom();
-		        } else if (adjustedMouseX >= WINDOW_HEIGHT+240 && adjustedMouseX < WINDOW_HEIGHT+460) {
-		            // "Sort By" button
-		            evoBoard.creatureRankMetric = (evoBoard.creatureRankMetric+1)%8;
-		        }
-		    } else if (adjustedMouseY >= 570) {
-		        float x = (adjustedMouseX-(WINDOW_HEIGHT-30));
-		        float y = (adjustedMouseY-570);
-		        boolean clickedOnLeft = (x%230 < 110);
-		        if (x >= 0 && x < 2*230 && y >= 0 && y < 4*50 && x%230 < 220 && y%50 < 40) {
-		            int mX = (int)(x/230);
-		            int mY = (int)(y/50);
-		            int buttonNum = mX+mY*2;
-		            if (buttonNum == 0) {
-		                evoBoard.userControl = !evoBoard.userControl;
-		            } else if (buttonNum == 1) {
-		                if (clickedOnLeft) {
-		                    evoBoard.creatureMinimum -= evoBoard.creatureMinimumIncrement;
-		                } else {
-		                    evoBoard.creatureMinimum += evoBoard.creatureMinimumIncrement;
-		                }
-		            } else if (buttonNum == 2) {
-		                evoBoard.prepareForFileSave(0);
-		            } else if (buttonNum == 3) {
-		                if (clickedOnLeft) {
-		                    evoBoard.imageSaveInterval *= 0.5;
-		                } else {
-		                    evoBoard.imageSaveInterval *= 2.0;
-		                }
-		                if (evoBoard.imageSaveInterval >= 0.7) {
-		                    evoBoard.imageSaveInterval = Math.round(evoBoard.imageSaveInterval);
-		                }
-		            } else if (buttonNum == 4) {
-		                evoBoard.prepareForFileSave(2);
-		            } else if (buttonNum == 5) {
-		                if (clickedOnLeft) {
-		                    evoBoard.textSaveInterval *= 0.5;
-		                } else {
-		                    evoBoard.textSaveInterval *= 2.0;
-		                }
-		                if (evoBoard.textSaveInterval >= 0.7) {
-		                    evoBoard.textSaveInterval = Math.round(evoBoard.textSaveInterval);
-		                }
-		            }else if(buttonNum == 6){
-		                if (clickedOnLeft) {
-		                    if(evoBoard.playSpeed >= 2){
-		                        evoBoard.playSpeed /= 2;
-		                    }else{
-		                        evoBoard.playSpeed = 0;
-		                    }
-		                } else {
-		                    if(evoBoard.playSpeed == 0){
-		                        evoBoard.playSpeed = 1;
-		                    } else if (evoBoard.playSpeed < Board.MAX_PLAYSPEED){
-		                        evoBoard.playSpeed *= 2;
-		                    }
-		                }
-		            }
-		        }
-		    } else if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_WIDTH-50 && evoBoard.selectedCreature == null) {
-		        int listIndex = (adjustedMouseY-150)/70;
-		        if (listIndex >= 0 && listIndex < evoBoard.LIST_SLOTS) {
-		            evoBoard.selectedCreature = evoBoard.list[listIndex];
-		            cameraX = (float)evoBoard.selectedCreature.px;
-		            cameraY = (float)evoBoard.selectedCreature.py;
-		            zoom = 16;
-		        }
-		    }
-		    if (adjustedMouseX >= WINDOW_WIDTH-50) {
+			if (adjustedMouseX >= WINDOW_WIDTH-50) {
 		        // The mouse clicked on the temperature bar
 		        
 		        float toClickTemp = (adjustedMouseY-30f)/660.0f;
@@ -332,7 +265,119 @@ public class EvolvioMod extends PApplet {
 		        } else {
 		            dragging = 3;
 		        }
+		    } else {
+		    	if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_WIDTH-50 && evoBoard.selectedCreature == null) {
+			        int listIndex = (adjustedMouseY-150)/70;
+			        if (listIndex >= 0 && listIndex < evoBoard.LIST_SLOTS) {
+			            evoBoard.selectedCreature = evoBoard.list[listIndex];
+			            cameraX = (float)evoBoard.selectedCreature.px;
+			            cameraY = (float)evoBoard.selectedCreature.py;
+			            zoom = 16;
+			        }
+			    }
+		    	
+		    	for(int i = 0; i < ModLoader.buttons.size(); i++) {
+		    		int bx = Board.getButtonX(i) + WINDOW_HEIGHT;
+		    		int by = Board.getButtonY(i);
+		    		
+		    		System.out.println(bx + ", " + by + " -=- " + adjustedMouseX + ", " + adjustedMouseY);
+		    		
+		    		if(bx < adjustedMouseX && adjustedMouseX < bx+Button.STANDARD_BUTTON_WIDTH && by < adjustedMouseY && adjustedMouseY < by+Button.STANDARD_BUTTON_HEIGHT) {
+		    			ModLoader.buttons.get(i).click(adjustedMouseX - bx, adjustedMouseY - by);
+		    			break;
+		    		}
+		    	}
 		    }
+			
+//		    // otherwise it's on the menu ui
+//		    if (abs(adjustedMouseX-(WINDOW_HEIGHT+65)) <= 60 && abs(adjustedMouseY-147) <= 60 && evoBoard.selectedCreature != null) {
+//		            // TODO: figure out what button this is
+//		            cameraX = (float)evoBoard.selectedCreature.px;
+//		            cameraY = (float)evoBoard.selectedCreature.py;
+//		            zoom = 16;
+//		    } else if (adjustedMouseY >= 95 && adjustedMouseY < 135 && evoBoard.selectedCreature == null) { // TODO: figure out what this condition means
+//		        if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_HEIGHT+230) {
+//		            // reset zoom button
+//		            resetZoom();
+//		        } else if (adjustedMouseX >= WINDOW_HEIGHT+240 && adjustedMouseX < WINDOW_HEIGHT+460) {
+//		            // "Sort By" button
+//		            evoBoard.creatureRankMetric = (evoBoard.creatureRankMetric+1)%8;
+//		        }
+//		    } else if (adjustedMouseY >= 570) {
+//		        float x = (adjustedMouseX-(WINDOW_HEIGHT-30));
+//		        float y = (adjustedMouseY-570);
+//		        boolean clickedOnLeft = (x%230 < 110);
+//		        if (x >= 0 && x < 2*230 && y >= 0 && y < 4*50 && x%230 < 220 && y%50 < 40) {
+//		            int mX = (int)(x/230);
+//		            int mY = (int)(y/50);
+//		            int buttonNum = mX+mY*2;
+//		            if (buttonNum == 0) {
+//		                evoBoard.userControl = !evoBoard.userControl;
+//		            } else if (buttonNum == 1) {
+//		                if (clickedOnLeft) {
+//		                    evoBoard.creatureMinimum -= evoBoard.creatureMinimumIncrement;
+//		                } else {
+//		                    evoBoard.creatureMinimum += evoBoard.creatureMinimumIncrement;
+//		                }
+//		            } else if (buttonNum == 2) {
+//		                evoBoard.prepareForFileSave(0);
+//		            } else if (buttonNum == 3) {
+//		                if (clickedOnLeft) {
+//		                    evoBoard.imageSaveInterval *= 0.5;
+//		                } else {
+//		                    evoBoard.imageSaveInterval *= 2.0;
+//		                }
+//		                if (evoBoard.imageSaveInterval >= 0.7) {
+//		                    evoBoard.imageSaveInterval = Math.round(evoBoard.imageSaveInterval);
+//		                }
+//		            } else if (buttonNum == 4) {
+//		                evoBoard.prepareForFileSave(2);
+//		            } else if (buttonNum == 5) {
+//		                if (clickedOnLeft) {
+//		                    evoBoard.textSaveInterval *= 0.5;
+//		                } else {
+//		                    evoBoard.textSaveInterval *= 2.0;
+//		                }
+//		                if (evoBoard.textSaveInterval >= 0.7) {
+//		                    evoBoard.textSaveInterval = Math.round(evoBoard.textSaveInterval);
+//		                }
+//		            }else if(buttonNum == 6){
+//		                if (clickedOnLeft) {
+//		                    if(evoBoard.playSpeed >= 2){
+//		                        evoBoard.playSpeed /= 2;
+//		                    }else{
+//		                        evoBoard.playSpeed = 0;
+//		                    }
+//		                } else {
+//		                    if(evoBoard.playSpeed == 0){
+//		                        evoBoard.playSpeed = 1;
+//		                    } else if (evoBoard.playSpeed < Board.MAX_PLAYSPEED){
+//		                        evoBoard.playSpeed *= 2;
+//		                    }
+//		                }
+//		            }
+//		        }
+//		    } else if (adjustedMouseX >= WINDOW_HEIGHT+10 && adjustedMouseX < WINDOW_WIDTH-50 && evoBoard.selectedCreature == null) {
+//		        int listIndex = (adjustedMouseY-150)/70;
+//		        if (listIndex >= 0 && listIndex < evoBoard.LIST_SLOTS) {
+//		            evoBoard.selectedCreature = evoBoard.list[listIndex];
+//		            cameraX = (float)evoBoard.selectedCreature.px;
+//		            cameraY = (float)evoBoard.selectedCreature.py;
+//		            zoom = 16;
+//		        }
+//		    }
+//		    if (adjustedMouseX >= WINDOW_WIDTH-50) {
+//		        // The mouse clicked on the temperature bar
+//		        
+//		        float toClickTemp = (adjustedMouseY-30f)/660.0f;
+//		        float lowTemp = 1.0f-evoBoard.getLowTempProportion();
+//		        float highTemp = 1.0f-evoBoard.getHighTempProportion();
+//		        if (abs(toClickTemp-lowTemp) < abs(toClickTemp-highTemp)) {
+//		            dragging = 2;
+//		        } else {
+//		            dragging = 3;
+//		        }
+//		    }
 		}
 		draggedFar = false;
 	}
@@ -340,16 +385,19 @@ public class EvolvioMod extends PApplet {
 	@Override
 	public void mouseReleased() {
 		if (!draggedFar) {
-		    if (mouseX/WINDOW_SCALE() < WINDOW_HEIGHT) { // DO NOT LOOK AT THIS CODE EITHER it is bad // It's cool, I'll fix it
+			float adjMouseX = mouseX/WINDOW_SCALE();
+			float adjMouseY = mouseY/WINDOW_SCALE();
+			
+		    if (adjMouseX < WINDOW_HEIGHT) { // DO NOT LOOK AT THIS CODE EITHER it is bad // It's cool, I'll fix it
 		        dragging = 1;
-		        float mX = toWorldXCoordinate(mouseX, mouseY);
-		        float mY = toWorldYCoordinate(mouseX, mouseY);
+		        float mX = toWorldXCoordinate(adjMouseX, adjMouseY);
+		        float mY = toWorldYCoordinate(adjMouseX, adjMouseY);
 		        int x = (int)(floor(mX));
 		        int y = (int)(floor(mY));
 		        evoBoard.unselect();
 		        cameraR = 0;
 		        if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
-		            for (int i = 0; i < evoBoard.softBodiesInPositions[x][y].size (); i++) {
+		            for (int i = 0; i < evoBoard.softBodiesInPositions[x][y].size(); i++) {
 		                SoftBody body = (SoftBody)evoBoard.softBodiesInPositions[x][y].get(i);
 		                if (body.isCreature) {
 		                    float distance = dist(mX, mY, (float)body.px, (float)body.py);
