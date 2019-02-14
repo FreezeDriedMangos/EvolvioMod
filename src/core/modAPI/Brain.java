@@ -8,7 +8,8 @@ import core.Creature;
 import processing.core.PFont;
 
 /**
- * This interface allows you to write your own code to model a brain for the creatures.
+ * This interface allows you to write your own code to model a brain for the creatures. Only one implementation of
+ * this interface can be loaded at once.
  * @author clay
  *
  */
@@ -68,7 +69,7 @@ public interface Brain {
 	 * This function is used to write this brain to file to save it from permanent deletion.
 	 * @return A string containing all of the information needed to reconstruct this brain.
 	 */
-	public String toString();
+	public String makeString();
 	
 	/**
 	 * This method is used to revive brains essentially from cryosleep

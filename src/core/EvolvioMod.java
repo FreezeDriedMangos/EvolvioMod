@@ -142,7 +142,7 @@ public class EvolvioMod extends PApplet {
 		
 		finishedSetup = true;
 		
-		System.out.println(evoBoard.creatures.get(0).brain);
+		System.out.println(evoBoard.creatures.get(0));
 	}
 	
 	public int getDrawspaceHeight() {

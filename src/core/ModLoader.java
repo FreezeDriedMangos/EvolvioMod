@@ -56,6 +56,8 @@ public final class ModLoader {
 	
 	// non ui
 	
+	public static String finalModList = "";
+	
 	public static final ArrayList<Class<TileAttribute>> tileAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAttribute>> creatureAttributes = new ArrayList<>();
 	public static final ArrayList<Class<CreatureAction>> creatureActions = new ArrayList<>();
@@ -210,6 +212,7 @@ public final class ModLoader {
 		buttons.add(new CoreButtons.MaintainPopButton());
 		buttons.add(new CoreButtons.PlaySpeedButton());
 		buttons.add(new CoreButtons.SaveWorldToFileButton());
+		buttons.add(new CoreButtons.BlendTilesButton());
 	}
 
 	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
@@ -540,7 +543,14 @@ public final class ModLoader {
 	private static void finishLoading(ArrayList<Path> modList) {
 		// load the mods
 		
-		System.out.println("final modlist " + modList);
+		StringBuilder b = new StringBuilder();
+		for(Path p : modList) {
+			b.append(p + "\n");
+		}
+
+		finalModList = b.toString();
+		
+		System.out.println("final modlist " + finalModList);
 		
 		for (Path p : modList) {
 			// if the path doesn't end with ".class", skip this one
@@ -648,8 +658,8 @@ public final class ModLoader {
 		}
 		
 		
-		for(Button b : buttons) {
-			b.init();
+		for(Button bu : buttons) {
+			bu.init();
 		}
 		
 		EvolvioMod.main.finishSetup();

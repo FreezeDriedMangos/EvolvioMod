@@ -1,8 +1,31 @@
 package core;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
 import core.modAPI.Button;
 
 public class CoreButtons {
+	static class BlendTilesButton implements Button {
+
+		@Override
+		public void click(int relX, int relY) {
+			EvolvioMod.main.evoBoard.BLEND_TILES = !EvolvioMod.main.evoBoard.BLEND_TILES;
+		}
+
+		@Override
+		public String getText() {
+			return "Toggle simple tile blending";
+		}
+		@Override public String getSecondLineText() { return EvolvioMod.main.evoBoard.BLEND_TILES ? "On" : "Off"; }
+
+		@Override public float getFlashAlpha() { return 0; }
+		@Override public void init() {}
+		
+	}
+	
 	static class ControlButton implements Button {
 		@Override
 		public void click(int relX, int relY) {
@@ -118,12 +141,32 @@ public class CoreButtons {
 		final float FLASH_FALLOFF = 0.1f;
 		float flashVal = 0;
 		
+		String folder = "worlds/world0/";
+		
 		@Override
 		public void click(int relX, int relY) {
 			// TODO Auto-generated method stub
 			flashVal = 1+FLASH_FALLOFF;
 			
+			try {
+				ArrayList<Creature> creatures = EvolvioMod.main.evoBoard.creatures;
+				for(int i = 0; i < creatures.size(); i++) {
+					PrintWriter w = new PrintWriter(folder+"creatures/creature"+i+".txt", "UTF-8");
+					w.println(creatures.get(i).toString());
+					w.close();
+				}
+				
+			} catch (Exception e) {} 
 			// save to a .wld file (I made up that extention :D)
+			try {
+				PrintWriter w = new PrintWriter(folder+"world.txt", "UTF-8");
+				w.println("World seed: " + EvolvioMod.main.SEED);
+				w.println("Mods\n" + ModLoader.finalModList);
+				w.println("\\Mods");
+				w.close();
+			} catch (FileNotFoundException | UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override

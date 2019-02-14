@@ -59,6 +59,17 @@ public interface CreatureAttribute<T> {
      */
 	public void initFromParents(ArrayList<CreatureAttribute> parentAttributes, Board board);
 	
+	/**
+	 * This function is used to write the creature that this attribute object belongs to to file to save it from permanent deletion.
+	 * @return A string containing all of the information needed to reconstruct this attribute for this creature.
+	 */
+	public String makeString();
+	/**
+	 * This method is used to revive creatures essentially from cryosleep
+	 * @param s a string previously returned from toString()
+	 * @return the attribute revived from the string representation s
+	 */
+	public CreatureAttribute<T> fromString(String s);
 	//TODO: future update: speciation
 //	public float getSpeciesDelta(Creature other);
 //	/**

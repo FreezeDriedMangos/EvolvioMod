@@ -1,0 +1,14 @@
+World seed: -367110488
+Mods: bin/evolvioColor/FoodHue.class
+bin/evolvioColor/ColorEatBehavior.class
+bin/evolvioColor/ColorTileDrawer.class
+bin/evolvioColor/MouthHue.class
+bin/evolvioColor/CreatureChangeMouthHue.class
+bin/evolvioColor/MouthHueSensor.class
+bin/evolvioOriginal/SizeSensor.class
+bin/evolvioOriginal/Axon.class
+bin/evolvioOriginal/EvolvioBrain.class
+bin/evolvioOriginal/FoodLevel.class
+bin/evolvioOriginal/Eyestalks.class
+bin/dynamicFertility/LattitudinalFertility.class
+

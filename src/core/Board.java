@@ -7,7 +7,7 @@ import core.modAPI.CreatureAttribute;
 import processing.core.PFont;
 
 public class Board {
-	public static final boolean BLEND_TILES = false;//true;
+	public static boolean BLEND_TILES = false;
 	
 	static final int MAX_PLAYSPEED = 4056;
 	static final int MAX_REALTIME_PLAYSPEED = 2048;

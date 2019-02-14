@@ -2,10 +2,12 @@ package carnivory;
 
 import core.EvolvioMod;
 import core.Tile;
+import core.modAPI.Button;
 import core.modAPI.TileDrawer;
 import evolvioOriginal.FoodLevel;
 
-public class CarnivoryTileDrawer implements TileDrawer {
+// I put the button implementation here so that it will only appear when this tile drawer is loaded
+public class CarnivoryTileDrawer implements TileDrawer, Button {
 	private static final float FOOD_TRANSPARENCY = 0.75f;
 	
 	public final int FERTILE_COLOR = EvolvioMod.main.color(31f/360f, 0.4f, 0.1f);//0.2f);
@@ -14,7 +16,7 @@ public class CarnivoryTileDrawer implements TileDrawer {
 	public final int MEAT_COLOR = EvolvioMod.main.color(349f/360f, 0.98f, 0.35f);
 	public final int WATER_COLOR = EvolvioMod.main.color(244f/360f, 0.73f,0.56f);
 	
-	private boolean drawTileBorders = false;
+	static boolean drawTileBorders = false;
     public float blendRadius = 0.1f;
 	
 	@Override
@@ -83,4 +85,23 @@ public class CarnivoryTileDrawer implements TileDrawer {
 		return color;
 	}
 	
+	
+	@Override
+	public void click(int relX, int relY) {
+		CarnivoryTileDrawer.drawTileBorders = !CarnivoryTileDrawer.drawTileBorders;
+	}
+
+	@Override
+	public String getText() {
+		return "Toggle Tile Borders";
+	}
+
+	@Override
+	public String getSecondLineText() {
+		return CarnivoryTileDrawer.drawTileBorders ? "On" : "Off";
+	}
+
+	@Override public float getFlashAlpha() { return 0; }
+
+	@Override public void init() { }
 }

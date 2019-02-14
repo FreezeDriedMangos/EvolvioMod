@@ -42,4 +42,16 @@ public class Carnivory implements CreatureAttribute<Double> {
 		// TODO: mutation
 	}
 
+	@Override
+	public CreatureAttribute<Double> fromString(String s) {
+		Carnivory c = new Carnivory();
+		c.val = Double.parseDouble(s);
+		return c;
+	}
+
+	@Override
+	public String makeString() {
+		return "" + val;
+	}
+
 }

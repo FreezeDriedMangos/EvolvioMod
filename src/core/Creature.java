@@ -3,6 +3,7 @@ package core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import core.modAPI.Brain;
 import core.modAPI.CreatureAction;
@@ -14,54 +15,59 @@ import processing.core.PFont;
 public class Creature extends SoftBody {
 	public static final double REPRODUCE_WILLINGNESS_THRESHOLD = -1;
 	
-	double ACCELERATION_ENERGY = 2*0.18;
-	double ACCELERATION_BACK_ENERGY = 2*0.24;
-	double SWIM_ENERGY = 0.008;
-	double TURN_ENERGY = 0.05;
+	final static double ACCELERATION_ENERGY = 2*0.18;
+	final static double ACCELERATION_BACK_ENERGY = 2*0.24;
+	final static double SWIM_ENERGY = 0.008;
+	final static double TURN_ENERGY = 0.05;
 //  double EAT_ENERGY = 0.05;
 	// double EAT_SPEED = 0.5; // 1 is instant, 0 is nonexistent, 0.001 is verrry
 	// slow.
 	// double EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER = 2.0; // The bigger this
 	// number is, the less effiently creatures eat when they're moving.
-	double FIGHT_ENERGY = 0.06;
-	double INJURED_ENERGY = 0.25;
-	double METABOLISM_ENERGY = 0.004;
+	final static double FIGHT_ENERGY = 0.06;
+	final static double INJURED_ENERGY = 0.25;
+	final static double METABOLISM_ENERGY = 0.004;
+
+	public final int ENERGY_HISTORY_LENGTH = 6;
+	public final double SAFE_SIZE = 1.25;
+	public final double MATURE_AGE = 0.01;
+
+	public final int MIN_NAME_LENGTH = 3;
+	public final int MAX_NAME_LENGTH = 10;
+	
 	String name;
 	String parents;
 	int gen;
 	int id;
-	public double MAX_VISION_DISTANCE = 10;
+//	public double MAX_VISION_DISTANCE = 10;
 	public double currentEnergy;
-	public final int ENERGY_HISTORY_LENGTH = 6;
-	public final double SAFE_SIZE = 1.25;
+	
+//	public final double STARTING_AXON_VARIABILITY = 1.0;
+	
 	public double[] previousEnergy = new double[ENERGY_HISTORY_LENGTH];
-	public final double MATURE_AGE = 0.01;
-	public final double STARTING_AXON_VARIABILITY = 1.0;
 //  final double FOOD_SENSITIVITY = 0.3;
 
 	public double vr = 0;
 	public double rotation = 0;
-	public final int BRAIN_WIDTH = 3;
-	public final int BRAIN_HEIGHT = 13;
-	public final double AXON_START_MUTABILITY = 0.0005;
-	public final int MIN_NAME_LENGTH = 3;
-	public final int MAX_NAME_LENGTH = 10;
-	public final float BRIGHTNESS_THRESHOLD = 0.7f;
+//	public final int BRAIN_WIDTH = 3;
+//	public final int BRAIN_HEIGHT = 13;
+//	public final double AXON_START_MUTABILITY = 0.0005;
+//	public final float BRIGHTNESS_THRESHOLD = 0.7f;
 	//public Axon[][][] axons;
 	//public double[][] neurons;
 
 	float preferredRank = 8;
-	double[] visionAngles = { 0, -0.4, 0.4 };
-	double[] visionDistances = { 0, 0.7, 0.7 };
+//	double[] visionAngles = { 0, -0.4, 0.4 };
+//	double[] visionDistances = { 0, 0.7, 0.7 };
 	// double visionAngle;
 	// double visionDistance;
-	double[] visionOccludedX = new double[visionAngles.length];
-	double[] visionOccludedY = new double[visionAngles.length];
-	double visionResults[] = new double[9];
+//	double[] visionOccludedX = new double[visionAngles.length];
+//	double[] visionOccludedY = new double[visionAngles.length];
+//	double visionResults[] = new double[9];
 	//int MEMORY_COUNT = 1;
 	//double[] memories;
 
-	float CROSS_SIZE = 0.022f;
+//	float CROSS_SIZE = 0.022f;
 
 	public double secondaryHue;
 	CreatureThread thread;
@@ -78,6 +84,8 @@ public class Creature extends SoftBody {
 
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
 		
+		//TODO: this below if statement always triggers (reproduction bug)
+		REPRODUCTION BUG
 		if(tbrain == null) {
 			peripherals = ModLoader.createPeripherals();
 			brain = ModLoader.createBrain(this, tb);
@@ -304,7 +312,7 @@ public class Creature extends SoftBody {
 //			action.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 //		}
 		for(CreatureFeatureDrawer drawer : featureDrawers) {
-			drawer.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+			drawer.preCreatureDraw(this, board, scaleUp, overworldDraw);
 		}
 		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
@@ -360,7 +368,7 @@ public class Creature extends SoftBody {
 //			action.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 //		}
 		for(CreatureFeatureDrawer drawer : featureDrawers) {
-			drawer.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
+			drawer.preCreatureDraw(this, board, scaleUp, overworldDraw);
 		}
 	}
 
@@ -893,5 +901,62 @@ public class Creature extends SoftBody {
 
 	public Brain getBrain() {
 		return brain;
+	}
+	
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		
+		s.append("+|- Name: " + name + "\n");
+		s.append("+|- Parents: " + parents + "\n");
+		
+		s.append("+|- Gen: " + gen + "\n");
+		s.append("+|- ID: " + id + "\n");
+
+		s.append("\n");
+		
+		s.append("+|- Brain\n");
+		s.append(brain.makeString());
+		s.append("+|- \\Brain\n");
+		
+		s.append("\n");
+		
+		s.append("+|- Attributes\n");
+		for(Entry<String, CreatureAttribute> ent : attributes.entrySet()) {
+			s.append(ent.getKey() + ":" + ent.getValue().getClass().getCanonicalName() + "\n");
+			s.append(ent.getValue().makeString());
+			s.append("\n");
+		}
+		s.append("+|- \\Attributes\n");
+		
+		s.append("+|- Actions\n");
+		for(CreatureAction a : actions) {
+			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append(a.toString());
+			s.append("\n");
+		}
+		s.append("+|- \\Actions\n");
+		
+		s.append("+|- Peripherals\n");
+		for(CreaturePeripheral a : peripherals) {
+			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append(a.toString());
+			s.append("\n");
+		}
+		s.append("+|- \\Peripherals\n");
+		
+		s.append("+|- FeatureDrawers\n");
+		for(CreatureFeatureDrawer a : featureDrawers) {
+			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append(a.toString());
+			s.append("\n");
+		}
+		s.append("+|- \\FeatureDrawers\n");
+		
+		return s.toString();
+	}
+	
+	public Creature fromString(String s) {
+		//TODO: this
+		return null;
 	}
 }

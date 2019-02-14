@@ -2,9 +2,10 @@ package evolvioOriginal;
 
 import core.EvolvioMod;
 import core.Tile;
+import core.modAPI.Button;
 import core.modAPI.TileDrawer;
 
-public class OriginalTileDrawer implements TileDrawer {
+public class OriginalTileDrawer implements TileDrawer, Button {
 
 	private static final float FOOD_TRANSPARENCY = 0.75f;
 	
@@ -14,7 +15,7 @@ public class OriginalTileDrawer implements TileDrawer {
 	public final int MEAT_COLOR = EvolvioMod.main.color(349f/360f, 0.98f, 0.35f);
 	public final int WATER_COLOR = EvolvioMod.main.color(244f/360f, 0.73f,0.56f);
 	
-	private boolean drawTileBorders = false;
+	static boolean drawTileBorders = false;
     public float blendRadius = 0.1f;
 	
 	@Override
@@ -74,4 +75,22 @@ public class OriginalTileDrawer implements TileDrawer {
 		return color;
 	}
 	
+	@Override
+	public void click(int relX, int relY) {
+		OriginalTileDrawer.drawTileBorders = !OriginalTileDrawer.drawTileBorders;
+	}
+
+	@Override
+	public String getText() {
+		return "Toggle Tile Borders";
+	}
+
+	@Override
+	public String getSecondLineText() {
+		return OriginalTileDrawer.drawTileBorders ? "On" : "Off";
+	}
+
+	@Override public float getFlashAlpha() { return 0; }
+
+	@Override public void init() { }
 }

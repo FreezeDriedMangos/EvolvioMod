@@ -409,7 +409,8 @@ public class EvolvioBrain implements Brain {
 		}
 	}
 	
-	public String toString() {
+	@Override
+	public String makeString() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("Axons:");

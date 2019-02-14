@@ -150,7 +150,7 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 	}
 	
 	@Override
-	public void preCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom, boolean overworldDraw) {
+	public void preCreatureDraw(Creature creature, Board board, float scaleUp, boolean overworldDraw) {
 		if(!overworldDraw) {
 			return;
 		}
@@ -197,7 +197,7 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 
 	// draws the middle / ground eye
 	@Override
-	public void postCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom, boolean overworldDraw) {
+	public void postCreatureDraw(Creature creature, Board board, float scaleUp, boolean overworldDraw) {
 //		if(!overworldDraw) {
 //			return;
 //		}

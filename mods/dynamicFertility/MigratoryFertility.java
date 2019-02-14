@@ -6,7 +6,14 @@ import core.Tile;
 import core.modAPI.TileAttribute;
 import processing.core.PApplet;
 
-public class Fertility implements TileAttribute<Double> {
+/**
+ * Attempts to create areas (or hotspots) of greater fertility that move around over time
+ * 
+ * Also areas of lesser fertility that move around over time
+ * @author clay
+ *
+ */
+public class MigratoryFertility implements TileAttribute<Double> {
 
 	private double fluxPeriod = 1.2;
 	private double periodOffset;
