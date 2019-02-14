@@ -14,8 +14,8 @@ import processing.core.PFont;
 public class Creature extends SoftBody {
 	public static final double REPRODUCE_WILLINGNESS_THRESHOLD = -1;
 	
-	double ACCELERATION_ENERGY = 0.18;
-	double ACCELERATION_BACK_ENERGY = 0.24;
+	double ACCELERATION_ENERGY = 2*0.18;
+	double ACCELERATION_BACK_ENERGY = 2*0.24;
 	double SWIM_ENERGY = 0.008;
 	double TURN_ENERGY = 0.05;
 //  double EAT_ENERGY = 0.05;

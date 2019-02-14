@@ -35,5 +35,4 @@ public class Fertility implements TileAttribute<Double> {
 	public void update(double lastUpdateTime, double updateTime, Tile t, Board b) {
 		// tile fertility doesn't change
 	}
-
 }

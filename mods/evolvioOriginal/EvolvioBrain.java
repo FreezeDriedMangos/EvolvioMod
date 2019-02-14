@@ -296,7 +296,7 @@ public class EvolvioBrain implements Brain {
 			inputLabels[brain.inputs.size() + i] = getPlaceholderLabel(i);
 		}
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			inputLabels[brain.inputs.size() + placeholderCount + i] = "Mem";
+			inputLabels[/* brain.inputs.size() + placeholderCount + i*/ BRAIN_HEIGHT-MEMORY_COUNT-1 + i] = "Mem";
 		}
 		inputLabels[inputLabels.length-1] = "Const.";
 		
@@ -312,7 +312,7 @@ public class EvolvioBrain implements Brain {
 			outputLabels[brain.outputs.size() + i] = getPlaceholderLabel(i);
 		}
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			outputLabels[brain.outputs.size() + placeholderCount + i] = "Mem";
+			outputLabels[/*brain.outputs.size() + placeholderCount + i*/  BRAIN_HEIGHT-MEMORY_COUNT-1 + i] = "Mem";
 		}
 		outputLabels[outputLabels.length-1] = "Const.";
 		
@@ -439,9 +439,8 @@ public class EvolvioBrain implements Brain {
 		return null;
 	}
 
-	//@Override
-	//public void useOutput(Creature creature, Board board, double timeStep) {
-	//	double val = Math.min(Math.max(getOutput("secondaryHue"), 0), 1);
-	//	((MouthHue)creature.getAttribute("mouthHue")).setValue(val);
-	//}
+	@Override
+	public boolean canMate(List<Brain> parents) {
+		return true; // there's no speciation in this lawless land
+	}
 }

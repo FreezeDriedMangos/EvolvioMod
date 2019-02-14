@@ -114,4 +114,42 @@ public class CoreButtons {
 		@Override public float getFlashAlpha() { return 0; }
 		@Override public void init() {}
 	}
+	static class SaveWorldToFileButton implements Button {
+		final float FLASH_FALLOFF = 0.1f;
+		float flashVal = 0;
+		
+		@Override
+		public void click(int relX, int relY) {
+			// TODO Auto-generated method stub
+			flashVal = 1+FLASH_FALLOFF;
+			
+			// save to a .wld file (I made up that extention :D)
+		}
+
+		@Override
+		public String getText() {
+			return "Save to File";
+		}
+
+		@Override
+		public String getSecondLineText() {
+			// TODO Auto-generated method stub
+			return "not implemented yet";
+		}
+
+		@Override
+		public float getFlashAlpha() {
+			flashVal -= FLASH_FALLOFF;
+			return flashVal;
+		}
+
+		@Override
+		public void init() {
+			// TODO Auto-generated method stub
+			
+
+			// make a new folder for this run of the program
+		}
+		
+	}
 }

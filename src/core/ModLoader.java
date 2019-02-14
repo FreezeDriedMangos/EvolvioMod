@@ -209,7 +209,7 @@ public final class ModLoader {
 		buttons.add(new CoreButtons.ControlButton());
 		buttons.add(new CoreButtons.MaintainPopButton());
 		buttons.add(new CoreButtons.PlaySpeedButton());
-		
+		buttons.add(new CoreButtons.SaveWorldToFileButton());
 	}
 
 	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
@@ -301,27 +301,47 @@ public final class ModLoader {
 			
 			thisModsCheckBoxes.add(box);
 			
+			String fileName = p.subpath(2, p.getNameCount()).toString().split("\\.")[0];
+			JLabel nameLabel = new JLabel(fileName);
+			
 			panel.add(box, Component.LEFT_ALIGNMENT);
-			panel.add(new JLabel(p.subpath(2, p.getNameCount()).toString().split("\\.")[0]), Component.LEFT_ALIGNMENT);
+			panel.add(nameLabel, Component.LEFT_ALIGNMENT);
 			
-			// TODO: add horizontal filler
-			//panel.add(new Box.Filler(new Dimension(1,1), new Dimension(10000,1), new Dimension(1000,1)));
-			
-			//panel.setPreferredSize(new Dimension(MOD_FRAME_HEIGHT, MOD_FRAME_WIDTH));
+
+			try {
+				String foundIdentifiers = "";
+				
+				Class<?> c = pathClasses.get(p);
+				for(Class<?> inter : c.getInterfaces()) {
+
+					if(inter.getCanonicalName().equals("core.modAPI.CreatureAttribute")) {
+						String name = ((CreatureAttribute)c.getConstructor().newInstance()).getName();
+						foundIdentifiers += " (" + name + ")";
+					} else if(inter.getCanonicalName().equals("core.modAPI.TileAttribute")) {
+						String name = ((TileAttribute)c.getConstructor().newInstance()).getName();
+						foundIdentifiers += " (" + name + ")";
+					}
+				}
+				
+				if(!foundIdentifiers.equals("")) {
+					JLabel names = new JLabel(foundIdentifiers);
+					names.setForeground(MOD_LISTING_BACKGROUND_COLOR);
+					panel.add(names, Component.LEFT_ALIGNMENT);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			Panel ids = new Panel();
 			ids.setLayout(new BoxLayout(ids, BoxLayout.LINE_AXIS));
 			addInterfaceIdentifiers(ids, pathClasses.get(p));
 			ids.add(new JLabel("    "));
 			
-			//panel.add(Box.createHorizontalGlue());
-			
 			Panel groupPanel = new Panel();
 			groupPanel.setLayout(new BorderLayout());
 			groupPanel.add(panel, BorderLayout.WEST);
 			groupPanel.add(ids, BorderLayout.EAST);
 			contentPanel.add(groupPanel, Component.LEFT_ALIGNMENT);
-			//contentPanel.add(panel, Component.LEFT_ALIGNMENT);
 			
 			pathPanels.put(p, groupPanel);
 		}
@@ -398,6 +418,10 @@ public final class ModLoader {
 		int eatBehaviorConflict = 0;
 		int tileDrawerConflict = 0;
 		
+		String warning = "";
+
+		HashMap<String, Panel> tileAttributes = new HashMap<>();
+		HashMap<String, Panel> creatureAttributes = new HashMap<>();
 		for(Path p : paths) {
 			pathPanels.get(p).setBackground(MOD_LISTING_BACKGROUND_COLOR);
 			
@@ -415,11 +439,35 @@ public final class ModLoader {
 					if(inter.getCanonicalName().equals("core.modAPI.Brain")) {
 						brainModelConflict++;
 					}
+					
+					if(inter.getCanonicalName().equals("core.modAPI.TileAttribute")) {
+						String name = ((TileAttribute)c.getConstructor().newInstance()).getName();
+						if(tileAttributes.containsKey(name)) {
+							warning += " Multiple definitions of tileAttribute \"" + name +"\"";
+							
+							tileAttributes.get(name).setBackground(new Color(0, 200, 150).darker());
+							pathPanels.get(p).setBackground(new Color(0, 200, 150).darker());
+							
+						}
+						
+						tileAttributes.put(name, pathPanels.get(p));
+					}
+					
+					if(inter.getCanonicalName().equals("core.modAPI.CreatureAttribute")) {
+						String name = ((CreatureAttribute)c.getConstructor().newInstance()).getName();
+						if(creatureAttributes.containsKey(name)) {
+							warning += " Multiple definitions of creatureAttribute \"" + name +"\"";
+							
+							creatureAttributes.get(name).setBackground(new Color(0, 150, 200).darker());
+							pathPanels.get(p).setBackground(new Color(0, 150, 200).darker());
+							
+						}
+						
+						creatureAttributes.put(name, pathPanels.get(p));
+					}
 				}
 			} catch (Exception e) {}
 		}
-		
-		String warning = "";
 		
 		if(eatBehaviorConflict == 0) {
 			warning += " No CreatureEatBehavior implementation selected!";

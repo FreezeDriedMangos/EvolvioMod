@@ -697,4 +697,7 @@ public class Board {
 		creatures.add(c);
 		//creatureQuadTree.addRectangleObject(new CreatureAreaBox(c));
 	}
+	
+	public double getYear() { return year; }
+	public double getTime() { return getYear(); } 
 }

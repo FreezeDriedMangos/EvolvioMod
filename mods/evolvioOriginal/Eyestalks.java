@@ -167,21 +167,21 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 			float endX = (float) getVisionEndX(creature, i);
 			float endY = (float) getVisionEndY(creature, i);
 			EvolvioMod.main.line((float) (creature.px * scaleUp), (float) (creature.py * scaleUp), endX * scaleUp, endY * scaleUp);
-//			EvolvioMod.main.noStroke();
-//			EvolvioMod.main.fill(visionUIcolor);
-//			EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
-//					2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
-//			EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
-//					(float) (visionResults[i * 3 + 2]));
-//			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-//			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
-//			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-//					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+			EvolvioMod.main.noStroke();
+			EvolvioMod.main.fill(visionUIcolor);
+			EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
+					2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
+			EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
+					(float) (visionResults[i * 3 + 2]));
+			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
+			EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
 		}
 	}
 	
@@ -198,32 +198,32 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 	// draws the middle / ground eye
 	@Override
 	public void postCreatureDraw(Creature creature, Board board, float scaleUp, float camZoom, boolean overworldDraw) {
-		if(!overworldDraw) {
-			return;
-		}
-		
-		EvolvioMod.main.ellipseMode(PConstants.RADIUS);
-		int i = 0;
-		int visionUIcolor = EvolvioMod.main.color(0, 0, 1);
-		if (visionResults[i * 3 + 2] > BRIGHTNESS_THRESHOLD) {
-			visionUIcolor = EvolvioMod.main.color(0, 0, 0);
-		}
-		EvolvioMod.main.stroke(visionUIcolor);
-		EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-		EvolvioMod.main.noStroke();
-		EvolvioMod.main.fill(visionUIcolor);
-		EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
-				2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
-		EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
-				(float) (visionResults[i * 3 + 2]));
-		EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
-		EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
-		EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
-				(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+//		if(!overworldDraw) {
+//			return;
+//		}
+//		
+//		EvolvioMod.main.ellipseMode(PConstants.RADIUS);
+//		int i = 0;
+//		int visionUIcolor = EvolvioMod.main.color(0, 0, 1);
+//		if (visionResults[i * 3 + 2] > BRIGHTNESS_THRESHOLD) {
+//			visionUIcolor = EvolvioMod.main.color(0, 0, 0);
+//		}
+//		EvolvioMod.main.stroke(visionUIcolor);
+//		EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+//		EvolvioMod.main.noStroke();
+//		EvolvioMod.main.fill(visionUIcolor);
+//		EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
+//				2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
+//		EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
+//				(float) (visionResults[i * 3 + 2]));
+//		EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
+//		EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp));
+//		EvolvioMod.main.line((float) ((visionOccludedX[i] - CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
+//				(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
 	}
 }
