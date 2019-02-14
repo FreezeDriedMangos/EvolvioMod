@@ -17,9 +17,10 @@ import core.Creature;
  */
 public interface CreaturePeripheral {
 	/**
-	 * This should do everything your constructor would normally do
+	 * This should do everything your constructor would normally do. Expect this method to be called
+	 * <b>before creature's brain or attributes are initialized</b>.
 	 */
-	public void init();
+	void init();
 //	public CreaturePeripheral getOffspring(List<Creature> parents);
 	
 	/**

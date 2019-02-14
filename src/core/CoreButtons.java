@@ -151,7 +151,7 @@ public class CoreButtons {
 			try {
 				ArrayList<Creature> creatures = EvolvioMod.main.evoBoard.creatures;
 				for(int i = 0; i < creatures.size(); i++) {
-					PrintWriter w = new PrintWriter(folder+"creatures/creature"+i+".txt", "UTF-8");
+					PrintWriter w = new PrintWriter(folder+"creatures/creature"+i+"_" + creatures.get(i).name +".dat", "UTF-8");
 					w.println(creatures.get(i).toString());
 					w.close();
 				}
@@ -159,7 +159,7 @@ public class CoreButtons {
 			} catch (Exception e) {} 
 			// save to a .wld file (I made up that extention :D)
 			try {
-				PrintWriter w = new PrintWriter(folder+"world.txt", "UTF-8");
+				PrintWriter w = new PrintWriter(folder+"world.dat", "UTF-8");
 				w.println("World seed: " + EvolvioMod.main.SEED);
 				w.println("Mods\n" + ModLoader.finalModList);
 				w.println("\\Mods");

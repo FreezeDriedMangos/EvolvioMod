@@ -705,7 +705,7 @@ public final class ModLoader {
 		}
 	}
 	
-	public static List<CreaturePeripheral> createPeripherals() {
+	public static List<CreaturePeripheral> createPeripherals(Creature c, Board b) {
 		List<CreaturePeripheral> p = new ArrayList<>();
 		for(Class<CreaturePeripheral> cl : creaturePeripherals) {
 			try {

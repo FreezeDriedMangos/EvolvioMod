@@ -85,9 +85,9 @@ public class Creature extends SoftBody {
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
 		
 		//TODO: this below if statement always triggers (reproduction bug)
-		REPRODUCTION BUG
+		//REPRODUCTION BUG
 		if(tbrain == null) {
-			peripherals = ModLoader.createPeripherals();
+			peripherals = ModLoader.createPeripherals(this, board);
 			brain = ModLoader.createBrain(this, tb);
 			ModLoader.initializeAttributes(this, tb);
 		} else {
@@ -641,7 +641,7 @@ public class Creature extends SoftBody {
 //					parentPeripherals.add(p.peripherals);
 //				}
 				
-				List<CreaturePeripheral> newPeripherals = ModLoader.createPeripherals();//ModLoader.getOffspringPeripherals(parentPeripherals);
+				List<CreaturePeripheral> newPeripherals = ModLoader.createPeripherals(null, board);//ModLoader.getOffspringPeripherals(parentPeripherals);
 				Brain newBrain = ModLoader.getOffspringBrain(newPeripherals, parents);
 //				Axon[][][] newBrain = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
 //				double[][] newNeurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
@@ -912,6 +912,12 @@ public class Creature extends SoftBody {
 		s.append("+|- Gen: " + gen + "\n");
 		s.append("+|- ID: " + id + "\n");
 
+		s.append("\n");
+		
+		s.append("+|- SoftBody Data\n");
+		s.append(super.makeString());
+		s.append("+|- \\SoftBody Data\n");
+		
 		s.append("\n");
 		
 		s.append("+|- Brain\n");

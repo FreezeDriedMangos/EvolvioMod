@@ -28,6 +28,7 @@ public class SoftBody {
 	int SBIPMinY;
 	int SBIPMaxX;
 	int SBIPMaxY;
+	
 	ArrayList<SoftBody> colliders;
 	Board board;
 
@@ -169,5 +170,22 @@ public class SoftBody {
 
 	public double getHue() {
 		return hue;
+	}
+
+	public String makeString() {
+		StringBuilder s = new StringBuilder();
+		
+		s.append("Loc: " + "(" + px + ", " + py + ")\n");
+		s.append("Vel: " + "(" + vx + ", " + vy + ")\n");
+		s.append("HSB: " + "(" + hue + ", " + saturation + ", " + brightness + ")\n");
+		s.append("Energy: " + energy + "\n");
+		s.append("Density: " + density + "\n");
+		s.append("Birth time: " + birthTime + "\n");
+		
+		return s.toString();
+	}
+	
+	public SoftBody fromString(String s) {
+		return null;
 	}
 }

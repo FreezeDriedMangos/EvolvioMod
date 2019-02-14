@@ -54,4 +54,10 @@ public class NewPseudoanimalsBrain implements Brain {
 	}
 	// axon weights have a genetically defined value, but can drift from that value (to a certain point) according to usage
 	// ^ neural plasticity
+
+	@Override
+	public String makeString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

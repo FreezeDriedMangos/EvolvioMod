@@ -32,7 +32,7 @@ public interface CreatureEatBehavior {
      * @param t the tile being eaten from
      * @param amount the amount of food being eaten
      * @param attemptedAmount the amount of food attempted to be eaten
-     * @param timeStep
+     * @param timeStep I don't know what this is, it was needed for some of the Evolvio Original files
      */
     public void creatureEatFromTile(Creature c, Tile t, double amount, double attemptedAmount, double timeStep);
     
@@ -43,13 +43,13 @@ public interface CreatureEatBehavior {
      * 
      * <br>
      * 
-     * this is basically creatureEatFromTile() where amount <= 0
+     * this is basically creatureEatFromTile() where amount &lt;= 0
      * 
      * @param c the creature eating
      * @param t the tile being eaten from
      * @param amount the amount of food being eaten
      * @param attemptedAmount the amount of food attempted to be eaten
-     * @param timeStep
+     * @param timeStep I don't know what this is, it was needed for some of the Evolvio Original files
      */
     public void creatureFailToEatFromTile(Creature c, Tile t, double amount, double attemptedAmount, double timeStep);
 

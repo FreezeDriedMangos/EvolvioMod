@@ -182,6 +182,8 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 					(float) ((visionOccludedY[i] + CROSS_SIZE) * scaleUp),
 					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
 					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
+			
+			System.out.println(i + " " + visionOccludedX[i] + ", " + visionOccludedY[i]);
 		}
 	}
 	
