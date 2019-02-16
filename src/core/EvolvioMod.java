@@ -4,6 +4,10 @@ import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.List;
+
+import com.github.ryanp102694.geometry.AbstractRectangleObject;
+import com.github.ryanp102694.geometry.RectangleObject;
 
 import core.modAPI.Button;
 import processing.core.PApplet;
@@ -16,6 +20,8 @@ public class EvolvioMod extends PApplet {
 	private static final long serialVersionUID = -5156677256654057134L;
 
 	public static final int MAX_PLAY_SPEED = 128;
+
+	private static final double OVERWORLD_CLICK_RADIUS = 1;
 	
 
 	public static EvolvioMod main;
@@ -142,7 +148,7 @@ public class EvolvioMod extends PApplet {
 		
 		finishedSetup = true;
 		
-		System.out.println(evoBoard.creatures.get(0));
+		//System.out.println(evoBoard.creatures.get(0));
 	}
 	
 	public int getDrawspaceHeight() {
@@ -194,7 +200,7 @@ public class EvolvioMod extends PApplet {
 		        dragging = 2;
 		    }
 		}
-		if (evoBoard.userControl && evoBoard.selectedCreature != null) {
+		if (/* evoBoard.userControl && */evoBoard.selectedCreature != null) {
 		    cameraX = (float)evoBoard.selectedCreature.px;
 		    cameraY = (float)evoBoard.selectedCreature.py;
 		    cameraR = -PI/2.0f-(float)evoBoard.selectedCreature.rotation;
@@ -206,7 +212,7 @@ public class EvolvioMod extends PApplet {
 		evoBoard.drawBlankBoard(SCALE_TO_FIX_BUG);
 		translate(BOARD_WIDTH*0.5f*SCALE_TO_FIX_BUG, BOARD_HEIGHT*0.5f*SCALE_TO_FIX_BUG);
 		scale(zoom); 
-		if (evoBoard.userControl && evoBoard.selectedCreature != null) {
+		if (/* evoBoard.userControl && */evoBoard.selectedCreature != null) {
 		    rotate(cameraR);
 		}
 		translate(-cameraX*SCALE_TO_FIX_BUG, -cameraY*SCALE_TO_FIX_BUG);
@@ -280,7 +286,7 @@ public class EvolvioMod extends PApplet {
 		    		int bx = Board.getButtonX(i) + WINDOW_HEIGHT;
 		    		int by = Board.getButtonY(i);
 		    		
-		    		System.out.println(bx + ", " + by + " -=- " + adjustedMouseX + ", " + adjustedMouseY);
+		    		//System.out.println(bx + ", " + by + " -=- " + adjustedMouseX + ", " + adjustedMouseY);
 		    		
 		    		if(bx < adjustedMouseX && adjustedMouseX < bx+Button.STANDARD_BUTTON_WIDTH && by < adjustedMouseY && adjustedMouseY < by+Button.STANDARD_BUTTON_HEIGHT) {
 		    			ModLoader.buttons.get(i).click(adjustedMouseX - bx, adjustedMouseY - by);
@@ -396,17 +402,29 @@ public class EvolvioMod extends PApplet {
 		        int y = (int)(floor(mY));
 		        evoBoard.unselect();
 		        cameraR = 0;
-		        if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
-		            for (int i = 0; i < evoBoard.softBodiesInPositions[x][y].size(); i++) {
-		                SoftBody body = (SoftBody)evoBoard.softBodiesInPositions[x][y].get(i);
-		                if (body.isCreature) {
-		                    float distance = dist(mX, mY, (float)body.px, (float)body.py);
-		                    if (distance <= body.getRadius()) {
-		                        evoBoard.selectedCreature = (Creature)body;
-		                        zoom = 16;
-		                    }
-		                }
-		            }
+//		        if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
+//		            for (int i = 0; i < evoBoard.softBodiesInPositions[x][y].size(); i++) {
+//		                SoftBody body = (SoftBody)evoBoard.softBodiesInPositions[x][y].get(i);
+//		                if (body.isCreature) {
+//		                    float distance = dist(mX, mY, (float)body.px, (float)body.py);
+//		                    if (distance <= body.getRadius()) {
+//		                        evoBoard.selectedCreature = (Creature)body;
+//		                        zoom = 16;
+//		                    }
+//		                }
+//		            }
+//		        }
+		        
+		        List<RectangleObject> potentialClicks = evoBoard.creatureQuadTree.search(new AbstractRectangleObject(mX-OVERWORLD_CLICK_RADIUS, mY-OVERWORLD_CLICK_RADIUS, OVERWORLD_CLICK_RADIUS*2, OVERWORLD_CLICK_RADIUS*2) {});
+		        for(RectangleObject o : potentialClicks) {
+		        	SoftBody body = ((SoftBodyRectangleObject)o).reference;
+	                if (body.isCreature) {
+	                    float distance = dist(mX, mY, (float)body.px, (float)body.py);
+	                    if (distance <= body.getRadius()) {
+	                        evoBoard.selectedCreature = (Creature)body;
+	                        zoom = 16;
+	                    }
+	                }
 		        }
 		    }
 		}

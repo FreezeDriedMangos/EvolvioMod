@@ -18,7 +18,7 @@ public interface CreatureAction {
 	public List<String> getRequiredOutputs();
 	
 	/**
-	 * This function is called after the creature's brain's think() method is called. In this method
+	 * This method is called after the creature's brain's think() method is called. In this method
 	 * Unless you want the creatures to constantly be performing this action, it is reccomended
 	 * you check the brain's output values to make sure that the creature is trying to perform this action.
 	 * This action doesn't neccessarily have to trigger.
@@ -28,4 +28,20 @@ public interface CreatureAction {
 	 * @param timeStep I really don't know what this does. I included it because some Evolvio Original mods needed it for some reason
 	 */
 	public void doAction(Brain brain, Creature creature, Board board, double timeStep);
+
+	/**
+	 * This method is called when the user is controlling the creature and tries to do this action
+	 * @param creature the creature doing the action
+	 * @param board the board that creature lives on
+	 * @param timeStep I really don't know what this does. I included it because some Evolvio Original mods needed it for some reason
+	 */
+	public void userDoAction(char keyPressed, Creature creature, Board board, double timeStep);
+
+	/**
+	 * This method is used to tell the user what key to press to do this action while controlling a creature
+	 * @return the keys that the user needs to press to do this action along with the name of the action
+	 */
+	public String getUserInstructions();
+	
+	// TODO: add a manual control button function
 }

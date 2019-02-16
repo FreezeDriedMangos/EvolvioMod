@@ -1,8 +1,14 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.github.ryanp102694.QuadTree;
+import com.github.ryanp102694.geometry.AbstractRectangleObject;
+import com.github.ryanp102694.geometry.RectangleObject;
 
 import core.modAPI.Button;
+import core.modAPI.CreatureAction;
 import core.modAPI.CreatureAttribute;
 import processing.core.PFont;
 
@@ -23,7 +29,7 @@ public class Board {
 	float MAX_TEMPERATURE;
 	final float THERMOMETER_MIN = -2;
 	final float THERMOMETER_MAX = 2;
-	final int ROCKS_TO_ADD;
+	int ROCKS_TO_ADD;
 	final float MIN_ROCK_ENERGY_BASE = 0.8f;
 	final float MAX_ROCK_ENERGY_BASE = 1.6f;
 	final float MIN_CREATURE_ENERGY = 1.2f;
@@ -34,13 +40,15 @@ public class Board {
 	final int BACKGROUND_COLOR = EvolvioMod.main.color(0, 0, 0.1f);
 	final float MINIMUM_SURVIVABLE_SIZE = 0.06f;
 	public final float CREATURE_STROKE_WEIGHT = 0.6f;
-	public ArrayList[][] softBodiesInPositions;
-	//private QuadTree creatureQuadTree;
+	//public ArrayList[][] softBodiesInPositions;
+	QuadTree creatureQuadTree;
+	Creature avatar = null;
+	
 	
 	ArrayList<SoftBody> rocks;
 	ArrayList<Creature> creatures;
 	Creature selectedCreature = null;
-	int creatureIDUpTo = 0;
+	int softBodyIDUpTo = 0;
 	float[] letterFrequencies = { 8.167f, 1.492f, 2.782f, 4.253f, 12.702f, 2.228f, 2.015f, 6.094f, 6.966f, 0.153f,
 			0.772f, 4.025f, 2.406f, 6.749f, 7.507f, 1.929f, 0.095f, 5.987f, 6.327f, 9.056f, 2.758f, 0.978f, 2.361f,
 			0.150f, 1.974f, 10000.0f };// 0.074};
@@ -66,8 +74,14 @@ public class Board {
 	int playSpeed = 1;
 	public int threadsToFinish = 0;
 
+	protected Board() {
+		creatureQuadTree = new QuadTree();
+	}
+	
 	public Board(int w, int h, float stepSize, float min, float max, int rta, int cm, int SEED,
 			String INITIAL_FILE_NAME, double ts) {
+		this();
+		
 		EvolvioMod.main.noiseSeed(SEED);
 		EvolvioMod.main.randomSeed(SEED);
 		boardWidth = w;
@@ -88,12 +102,12 @@ public class Board {
 		MIN_TEMPERATURE = min;
 		MAX_TEMPERATURE = max;
 
-		softBodiesInPositions = new ArrayList[boardWidth][boardHeight];
-		for (int x = 0; x < boardWidth; x++) {
-			for (int y = 0; y < boardHeight; y++) {
-				softBodiesInPositions[x][y] = new ArrayList<SoftBody>(0);
-			}
-		}
+//		softBodiesInPositions = new ArrayList[boardWidth][boardHeight];
+//		for (int x = 0; x < boardWidth; x++) {
+//			for (int y = 0; y < boardHeight; y++) {
+//				softBodiesInPositions[x][y] = new ArrayList<SoftBody>(0);
+//			}
+//		}
 		//creatureQuadTree = new QuadTree();
 
 		ROCKS_TO_ADD = rta;
@@ -123,6 +137,20 @@ public class Board {
 		for (int i = 0; i < POPULATION_HISTORY_LENGTH; i++) {
 			populationHistory[i] = 0;
 		}
+	}
+	
+	public Creature spawnCreature() {
+		return this.spawnCreature(EvolvioMod.main.random(0, boardWidth), EvolvioMod.main.random(0, boardHeight));
+	}
+	public Creature spawnCreature(double x, double y) {
+		Creature c =
+				(new Creature(x, y,
+						0, 0, EvolvioMod.main.random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1,
+						EvolvioMod.main.random(0, 1), 1, 1, this, year,
+						EvolvioMod.main.random(0, 2 * EvolvioMod.main.PI), 0, "", "[PRIMORDIAL]", true, null,
+						null, 1, EvolvioMod.main.random(0, 1)));
+		addCreature(c);
+		return c;
 	}
 
 	public void drawBoard(float scaleUp, float camZoom, int mX, int mY) {
@@ -341,21 +369,36 @@ public class Board {
 				EvolvioMod.main.text(att.getName() + ": " + att.getValue(), 10, 570 + (attNum++)*textHeight);
 			}
 			
-			if (userControl) {
+			if (userControl || selectedCreature == avatar) {
 				attNum++;
 				
-				EvolvioMod.main.text(
-						"Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color"
-								+ "\nI,K: Change mouth color\nB: Give birth (Not possible if under "
-								+ Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)",
-						10, /*625*/570 + (attNum++)*textHeight, 250, 400);
+//				EvolvioMod.main.text(
+//						"Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color"
+//								+ "\nB: Give birth (Not possible if under "
+//								+ Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)",
+//						10, /*625*/570 + (attNum++)*textHeight, 250, 400);
+//				
+//				float startY = attNum+textHeight*7;
+//				for(CreatureAction a : selectedCreature.actions) {
+//					EvolvioMod.main.text(a.getUserInstructions(), 10, startY, 250, 400);
+//					startY += textHeight;
+//				}
+				
+				StringBuilder controlString = new StringBuilder();
+				controlString.append("Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color"
+						+ "\nB: Give birth (Not possible if under "
+						+ Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)");
+				for(CreatureAction a : selectedCreature.actions) {
+					controlString.append("\n" + a.getUserInstructions());
+				}
+				
+				EvolvioMod.main.text(controlString.toString(), 10, 570 + (attNum++)*textHeight, 250, 400);
+				
 			}
 			EvolvioMod.main.pushMatrix();
 			EvolvioMod.main.translate(400, 80);
-			float apX = EvolvioMod.main
-					.round((EvolvioMod.main.mouseX * EvolvioMod.main.WINDOW_SCALE() - 400 - x1) / 46.0f);
-			float apY = EvolvioMod.main
-					.round((EvolvioMod.main.mouseY * EvolvioMod.main.WINDOW_SCALE() - 80 - y1) / 46.0f);
+			float apX = EvolvioMod.main.round((EvolvioMod.main.mouseX * EvolvioMod.main.WINDOW_SCALE() - 400 - x1) / 46.0f);
+			float apY = EvolvioMod.main.round((EvolvioMod.main.mouseY * EvolvioMod.main.WINDOW_SCALE() - 80 - y1) / 46.0f);
 			selectedCreature.drawBrain(font, 46, (int) apX, (int) apY);
 			EvolvioMod.main.popMatrix();
 		}
@@ -461,47 +504,52 @@ public class Board {
 			// me.doThread(timeStep, userControl);
 			me.collide(timeStep);
 			me.metabolize(timeStep);
-			me.useBrain(timeStep, !userControl);
-			if (userControl) {
-				if (me == selectedCreature) {
-					if (EvolvioMod.main.keyPressed) {
-						if (EvolvioMod.main.key == EvolvioMod.main.CODED) {
-							if (EvolvioMod.main.keyCode == EvolvioMod.main.UP)
-								me.accelerate(0.04, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.keyCode == EvolvioMod.main.DOWN)
-								me.accelerate(-0.04, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.keyCode == EvolvioMod.main.LEFT)
-								me.turn(-0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.keyCode == EvolvioMod.main.RIGHT)
-								me.turn(0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-						} else {
-							if (EvolvioMod.main.key == ' ')
-								me.eat(0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.key == 'v')
-								me.eat(-0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.key == 'f')
-								me.fight(0.5, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
-							if (EvolvioMod.main.key == 'u')
-								me.setHue(me.hue + 0.02);
-							if (EvolvioMod.main.key == 'j')
-								me.setHue(me.hue - 0.02);
+			
+			if ((userControl && me == selectedCreature) || me == avatar) {
+				if (EvolvioMod.main.keyPressed) {
+					if (EvolvioMod.main.key == EvolvioMod.main.CODED) {
+						if (EvolvioMod.main.keyCode == EvolvioMod.main.UP)
+							me.accelerate(0.04, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.keyCode == EvolvioMod.main.DOWN)
+							me.accelerate(-0.04, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.keyCode == EvolvioMod.main.LEFT)
+							me.turn(-0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.keyCode == EvolvioMod.main.RIGHT)
+							me.turn(0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+					} else {
+						if (EvolvioMod.main.key == ' ')
+							me.eat(0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.key == 'v')
+							me.eat(-0.1, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.key == 'f')
+							me.fight(0.5, timeStep * OBJECT_TIMESTEPS_PER_YEAR);
+						if (EvolvioMod.main.key == 'u')
+							me.setHue(me.hue + 0.02);
+						if (EvolvioMod.main.key == 'j')
+							me.setHue(me.hue - 0.02);
 
-							if (EvolvioMod.main.key == 'i')
-								me.setMouthHue(me.secondaryHue + 0.02);
-							if (EvolvioMod.main.key == 'k')
-								me.setMouthHue(me.secondaryHue - 0.02);
-							if (EvolvioMod.main.key == 'b') {
-								if (!wasPressingB) {
-									me.reproduce(MANUAL_BIRTH_SIZE, timeStep);
-								}
-								wasPressingB = true;
-							} else {
-								wasPressingB = false;
+//						if (EvolvioMod.main.key == 'i')
+//							me.setMouthHue(me.secondaryHue + 0.02);
+//						if (EvolvioMod.main.key == 'k')
+//							me.setMouthHue(me.secondaryHue - 0.02);
+						if (EvolvioMod.main.key == 'b') {
+							if (!wasPressingB) {
+								me.reproduce(MANUAL_BIRTH_SIZE, timeStep);
 							}
+							wasPressingB = true;
+						} else {
+							wasPressingB = false;
+						}
+						
+						for(CreatureAction a : me.actions) {
+							a.userDoAction(EvolvioMod.main.key, me, this, timeStep);
 						}
 					}
 				}
+			} else {
+				me.useBrain(timeStep, !userControl);
 			}
+			
 			if (me.getRadius() < MINIMUM_SURVIVABLE_SIZE) {
 				me.returnToEarth();
 				creatures.remove(me);
@@ -688,7 +736,7 @@ public class Board {
 	public void unselect() {
 		selectedCreature = null;
 	}
-
+	
 	public float getHeight() {
 		return boardHeight;
 	}
@@ -699,5 +747,16 @@ public class Board {
 	}
 	
 	public double getYear() { return year; }
-	public double getTime() { return getYear(); } 
+	public double getTime() { return getYear(); }
+
+	public List<SoftBody> getSoftBodiesInArea(double x, double y, double w, double h) {
+		List<RectangleObject> queryResults = this.creatureQuadTree.search(new AbstractRectangleObject(x, y, w, h) {});
+		
+		List<SoftBody> results = new ArrayList<>();
+		for(RectangleObject r : queryResults) {
+			results.add(((SoftBodyRectangleObject)r).reference);
+		}
+		
+		return results;
+	} 
 }

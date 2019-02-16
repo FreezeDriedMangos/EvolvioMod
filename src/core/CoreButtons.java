@@ -145,7 +145,6 @@ public class CoreButtons {
 		
 		@Override
 		public void click(int relX, int relY) {
-			// TODO Auto-generated method stub
 			flashVal = 1+FLASH_FALLOFF;
 			
 			try {
@@ -174,11 +173,7 @@ public class CoreButtons {
 			return "Save to File";
 		}
 
-		@Override
-		public String getSecondLineText() {
-			// TODO Auto-generated method stub
-			return "not implemented yet";
-		}
+		@Override public String getSecondLineText() { return null; }
 
 		@Override
 		public float getFlashAlpha() {
@@ -194,5 +189,50 @@ public class CoreButtons {
 			// make a new folder for this run of the program
 		}
 		
+	}
+	
+	static class FocusOnAvatarButton implements Button {
+		@Override
+		public void click(int relX, int relY) {
+			EvolvioMod.main.evoBoard.selectedCreature = EvolvioMod.main.evoBoard.avatar;
+		}
+
+		@Override
+		public String getText() {
+			return "Focus on Avatar";
+		}
+
+		@Override public String getSecondLineText() { return EvolvioMod.main.evoBoard.avatar == null ? "No Avatar yet created" : ""; }
+		@Override public float getFlashAlpha() { return 0; }
+		@Override public void init() {}
+	}
+	
+	static class SpawnAvatarButton implements Button {
+		final float FLASH_FALLOFF = 0.1f;
+		float flashVal = 0;
+		
+		@Override
+		public void click(int relX, int relY) {
+			flashVal = 1+FLASH_FALLOFF;
+			Creature c = EvolvioMod.main.evoBoard.spawnCreature();
+			c.name = "~Avatar~";
+			EvolvioMod.main.evoBoard.avatar = c;
+		}
+
+		@Override
+		public String getText() {
+			return "Create an Avatar";
+		}
+
+		@Override
+		public String getSecondLineText() { return null; }
+
+		@Override
+		public float getFlashAlpha() {
+			flashVal -= FLASH_FALLOFF;
+			return flashVal;
+		}
+
+		@Override public void init() {}
 	}
 }

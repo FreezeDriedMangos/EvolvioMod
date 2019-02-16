@@ -20,19 +20,25 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 	
 	double[] visionAngles = { 0, -0.4, 0.4 };
 	double[] visionDistances = { 0, 0.7, 0.7 };
+	double maxVisionDistance;
 	// double visionAngle;
 	// double visionDistance;
 	double[] visionOccludedX = new double[visionAngles.length];
 	double[] visionOccludedY = new double[visionAngles.length];
 	double visionResults[] = new double[9];
 
-	public static List<String> inputNames;
+	//p List<String> inputNames;
 	
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
-		if(inputNames == null) {
-			inputNames = getInputNames();
+//		// TODO Auto-generated method stub
+//		if(inputNames == null) {
+//			inputNames = getInputNames();
+//		}
+		
+		maxVisionDistance = visionDistances[0];
+		for(double d : visionDistances) {
+			maxVisionDistance = Math.max(maxVisionDistance, d);
 		}
 	}
 
@@ -75,19 +81,21 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 			int prevTileX = -1;
 			int prevTileY = -1;
 			ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
-			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
-				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
-				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
-				if (tileX != prevTileX || tileY != prevTileY) {
-					addPVOs(tileX, tileY, creature, board, potentialVisionOccluders);
-					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
-						addPVOs(prevTileX, tileY, creature, board, potentialVisionOccluders);
-						addPVOs(tileX, prevTileY, creature, board, potentialVisionOccluders);
-					}
-				}
-				prevTileX = tileX;
-				prevTileY = tileY;
-			}
+//			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
+//				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
+//				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
+//				if (tileX != prevTileX || tileY != prevTileY) {
+//					addPVOs(tileX, tileY, creature, board, potentialVisionOccluders);
+//					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
+//						addPVOs(prevTileX, tileY, creature, board, potentialVisionOccluders);
+//						addPVOs(tileX, prevTileY, creature, board, potentialVisionOccluders);
+//					}
+//				}
+//				prevTileX = tileX;
+//				prevTileY = tileY;
+//			}
+			List<SoftBody> pvo = board.getSoftBodiesInArea(visionStartX-maxVisionDistance, visionStartY-maxVisionDistance, maxVisionDistance*2f, maxVisionDistance*2f);
+			
 			double[][] rotationMatrix = new double[2][2];
 			rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
 			rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
@@ -117,6 +125,7 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 		}
 		
 		HashMap<String, Double> vals = new HashMap<>();
+		List<String> inputNames = getInputNames();
 		for(int i = 0; i < inputNames.size(); i++) {
 			vals.put(inputNames.get(i), visionResults[i]);
 		}
@@ -124,16 +133,16 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 		return vals;
 	}
 	
-	public void addPVOs(int x, int y, Creature creature, Board board, ArrayList<SoftBody> PVOs) {
-		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
-			for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
-				SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
-				if (!PVOs.contains(newCollider) && newCollider != creature) {
-					PVOs.add(newCollider);
-				}
-			}
-		}
-	}
+//	public void addPVOs(int x, int y, Creature creature, Board board, ArrayList<SoftBody> PVOs) {
+//		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
+//			for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
+//				SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
+//				if (!PVOs.contains(newCollider) && newCollider != creature) {
+//					PVOs.add(newCollider);
+//				}
+//			}
+//		}
+//	}
 
 	public double distance(double x1, double y1, double x2, double y2) {
 		return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
@@ -155,6 +164,8 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 			return;
 		}
 		
+		// TODO: eyeballs don't draw properly
+		
 		EvolvioMod.main.ellipseMode(PConstants.RADIUS);
 		
 		for (int i = 0; i < visionAngles.length; i++) {
@@ -166,11 +177,15 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
 			float endX = (float) getVisionEndX(creature, i);
 			float endY = (float) getVisionEndY(creature, i);
+			
 			EvolvioMod.main.line((float) (creature.px * scaleUp), (float) (creature.py * scaleUp), endX * scaleUp, endY * scaleUp);
 			EvolvioMod.main.noStroke();
 			EvolvioMod.main.fill(visionUIcolor);
 			EvolvioMod.main.ellipse((float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp),
 					2 * CROSS_SIZE * scaleUp, 2 * CROSS_SIZE * scaleUp);
+			
+			//System.out.printf("eyeball: (%f, %f)  vision end: (%f, %f)\n", (float) (visionOccludedX[i] * scaleUp), (float) (visionOccludedY[i] * scaleUp), endX, endY);
+			
 			EvolvioMod.main.stroke((float) (visionResults[i * 3]), (float) (visionResults[i * 3 + 1]),
 					(float) (visionResults[i * 3 + 2]));
 			EvolvioMod.main.strokeWeight(board.CREATURE_STROKE_WEIGHT);
@@ -183,7 +198,7 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 					(float) ((visionOccludedX[i] + CROSS_SIZE) * scaleUp),
 					(float) ((visionOccludedY[i] - CROSS_SIZE) * scaleUp));
 			
-			System.out.println(i + " " + visionOccludedX[i] + ", " + visionOccludedY[i]);
+			//System.out.println(i + " " + visionOccludedX[i] + ", " + visionOccludedY[i]);
 		}
 	}
 	

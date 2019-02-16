@@ -33,10 +33,7 @@ public class MouthHue implements CreatureAttribute<Double>, CreatureFeatureDrawe
 	}
 
 	@Override
-	public void update(double lastUpdateTime, double updateTime, Creature c, Board b) {
-		// TODO Auto-generated method stub
-
-	}
+	public void update(double lastUpdateTime, double updateTime, Creature c, Board b) {}
 
 	@Override
 	public void initFromParents(ArrayList<CreatureAttribute> parentAttributes, Board board) {
@@ -59,6 +56,8 @@ public class MouthHue implements CreatureAttribute<Double>, CreatureFeatureDrawe
 	@Override
 	public void postCreatureDraw(Creature creature, Board board, float scaleUp, boolean overworldDraw) {
 		double radius = creature.getRadius();
+		
+		// TODO: this stopped working for some reason
 		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		EvolvioMod.main.pushMatrix();

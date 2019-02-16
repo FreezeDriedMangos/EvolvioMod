@@ -12,13 +12,16 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.font.TextAttribute;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +50,8 @@ import core.modAPI.TileAttribute;
 import core.modAPI.TileDrawer;
 
 public final class ModLoader {
+//	public static final String jarPath = ClassLoader.getSystemClassLoader().getResource(".").getPath();
+	
 	// ui
 	
 	protected static final Color MOD_LISTING_BACKGROUND_COLOR = new Color(225, 225, 225);
@@ -78,7 +83,6 @@ public final class ModLoader {
 	 * recursively looks in folder "mods" for any classes that implemnt any API
 	 * interfaces and loads them
 	 */
-	@SuppressWarnings("unchecked")
 	public static void init() {
 		addCoreButtons();
 		
@@ -90,14 +94,31 @@ public final class ModLoader {
 		brainOutputs.add("fight");
 		brainOutputs.add("reproduce");
 		
+//		File jarDir = new File(jarPath); System.out.println(jarPath);
+//		System.setProperty("user.dir", jarPath);
+		
+		
+		Path modsFolder = Paths.get("mods/");
+		Path binFolder = Paths.get("bin/");
+		
+//		try {
+//			for(File f : jarDir.listFiles()) {
+//				if(f.getName().equals("mods")) {
+//					modsFolder = Paths.get(f.getAbsolutePath());
+//				} else if(f.getName().equals("bin")) {
+//					binFolder = Paths.get(f.getAbsolutePath());
+//				}
+//			}
+//		} catch (Exception e) {} 
+		
 		ArrayList<Path> paths = new ArrayList<>();
 		try {
-			Files.find(Paths.get("mods/"),
+			Files.find(modsFolder,
 			           Integer.MAX_VALUE,
 			           (filePath, fileAttr) ->  fileAttr.isRegularFile())
 			        .forEach(paths::add);
 			
-			Files.find(Paths.get("bin/"),
+			Files.find(binFolder,
 			           Integer.MAX_VALUE,
 			           (filePath, fileAttr) -> fileAttr.isRegularFile() && !filePath.startsWith("bin/core"))
 			        .forEach(paths::add);
@@ -149,7 +170,7 @@ public final class ModLoader {
 			try {
 				String className = p.subpath(1, p.getNameCount()).toString().replace('/', '.');
 				className = className.substring(0, className.length()-(".class".length()));
-				Class<?> c = Class.forName(className);
+				Class<?> c = loadClass(className);
 				pathClasses.put(p, c);
 			} catch (Exception e) {}
 		}
@@ -213,6 +234,9 @@ public final class ModLoader {
 		buttons.add(new CoreButtons.PlaySpeedButton());
 		buttons.add(new CoreButtons.SaveWorldToFileButton());
 		buttons.add(new CoreButtons.BlendTilesButton());
+		buttons.add(new CoreButtons.SpawnAvatarButton());
+		buttons.add(new CoreButtons.FocusOnAvatarButton());
+		
 	}
 
 	private static int makeListingForMod(ArrayList<Path> paths, int startIndex, Panel contentPanel, HashMap<Path, Panel> pathPanels, HashMap<Path, Class> pathClasses, JLabel warningLabel) {
@@ -303,6 +327,7 @@ public final class ModLoader {
 	           });    
 			
 			thisModsCheckBoxes.add(box);
+			
 			
 			String fileName = p.subpath(2, p.getNameCount()).toString().split("\\.")[0];
 			JLabel nameLabel = new JLabel(fileName);
@@ -562,7 +587,7 @@ public final class ModLoader {
 			try {
 				String className = p.subpath(1, p.getNameCount()).toString().replace('/', '.');
 				className = className.substring(0, className.length()-(".class".length()));
-				Class<?> c = Class.forName(className);
+				Class<?> c = loadClass(className);
 				
 				System.out.println(c);
 				
@@ -622,26 +647,7 @@ public final class ModLoader {
 //								brainInputs.add((Class<BrainInput>) c);
 //							}
 				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException  | SecurityException e) {
 				e.printStackTrace();
 			}
 		}
@@ -649,7 +655,6 @@ public final class ModLoader {
 		System.out.println(tileAttributes);
 		String missing = "";
 		missing += brainModel          == null? "Brain.java"               : "";  
-//		missing += brainDrawer         == null? "BrainDrawer.java"         : ""; 
 		missing += creatureEatBehavior == null? "CreatureEatBehavior.java" : ""; 
 		missing += tileDrawer          == null? "TileDrawer.java"          : ""; 
 		
@@ -665,6 +670,23 @@ public final class ModLoader {
 		EvolvioMod.main.finishSetup();
 		
 //		EvolvioMod.finishStartup(); // temp
+	}
+
+	private static Class<?> loadClass(String className) throws ClassNotFoundException {
+//		return Class.forName(className);
+		try {
+			URLClassLoader urlClassLoader = URLClassLoader.newInstance(new URL[] {
+				       new URL(
+				           "file:///D:/"
+				       )
+				});
+			
+			return urlClassLoader.loadClass(className);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		throw new ClassNotFoundException();
 	}
 
 	public static void initializeAttributes(Tile tile, Board board, float stepSize) {
@@ -777,7 +799,7 @@ public final class ModLoader {
 	}
 
 	public static void setOffspringAttributes(Creature baby, ArrayList<Creature> parents, Board board) {
-		System.out.println(parents);
+		//System.out.println(parents);
 		for(Class<CreatureAttribute> attribute : creatureAttributes) {
 			try {
 				String attributeName = attribute.getConstructor().newInstance().getName();

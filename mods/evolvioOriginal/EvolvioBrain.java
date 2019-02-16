@@ -19,7 +19,9 @@ public class EvolvioBrain implements Brain {
 	final int MAX_NAME_LENGTH = 10;
 	final float BRIGHTNESS_THRESHOLD = 0.7f;
 	final double STARTING_AXON_VARIABILITY = 1.0;
-	int BRAIN_HEIGHT = 13;
+	
+	int brainHeight;// = 13;
+	int brainWidth = BRAIN_WIDTH;
 	
 	float preferredRank = 8;
 	double[] visionAngles = { 0, -0.4, 0.4 };
@@ -49,25 +51,25 @@ public class EvolvioBrain implements Brain {
 		
 		inputs = inputsRequired;
 		outputs = outputsRequired;
-		BRAIN_HEIGHT = Math.max(inputs.size(), outputs.size()) + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
+		brainHeight = Math.max(inputs.size(), outputs.size()) + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
 		
-		axons = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
-		neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
-		for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
-			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-				for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
+		axons = new Axon[brainWidth - 1][brainHeight][brainHeight - 1];
+		neurons = new double[brainWidth][brainHeight];
+		for (int x = 0; x < brainWidth - 1; x++) {
+			for (int y = 0; y < brainHeight; y++) {
+				for (int z = 0; z < brainHeight - 1; z++) {
 					double startingWeight = 0;
-					if (true || y == BRAIN_HEIGHT - 1) {
+					if (true || y == brainHeight - 1) {
 						startingWeight = (Math.random() * 2 - 1) * STARTING_AXON_VARIABILITY;
 					}
 					axons[x][y][z] = new Axon(startingWeight, AXON_START_MUTABILITY);
 				}
 			}
 		}
-		neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
-		for (int x = 0; x < BRAIN_WIDTH; x++) {
-			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-				if (y == BRAIN_HEIGHT - 1) {
+		neurons = new double[brainWidth][brainHeight];
+		for (int x = 0; x < brainWidth; x++) {
+			for (int y = 0; y < brainHeight; y++) {
+				if (y == brainHeight - 1) {
 					neurons[x][y] = 1;
 				} else {
 					neurons[x][y] = 0;
@@ -95,18 +97,18 @@ public class EvolvioBrain implements Brain {
 		}
 		
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			neurons[0][(BRAIN_HEIGHT - MEMORY_COUNT) + i] = memories[i];
+			neurons[0][(brainHeight - MEMORY_COUNT) + i] = memories[i];
 		}
 
 		//neurons[0][neurons.length-1] = 1;
 		
-		for (int layer = 1; layer < BRAIN_WIDTH; layer++) {
-			for (int i = 0; i < BRAIN_HEIGHT - 1; i++) {
+		for (int layer = 1; layer < brainWidth; layer++) {
+			for (int i = 0; i < brainHeight - 1; i++) {
 				double total = 0;
-				for (int input = 0; input < BRAIN_HEIGHT; input++) {
+				for (int input = 0; input < brainHeight; input++) {
 					total += neurons[layer - 1][input] * axons[layer - 1][input][i].weight;
 				}
-				if (layer == BRAIN_WIDTH - 1) {
+				if (layer == brainWidth - 1) {
 					neurons[layer][i] = total;
 				} else {
 					neurons[layer][i] = sigmoid(total);
@@ -114,9 +116,9 @@ public class EvolvioBrain implements Brain {
 			}
 		}
 
-		int end = BRAIN_WIDTH - 1;
+		int end = brainWidth - 1;
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			memories[i] = neurons[end][(BRAIN_HEIGHT-MEMORY_COUNT) + i];
+			memories[i] = neurons[end][(brainHeight-MEMORY_COUNT) + i];
 		}
 	}
 
@@ -206,7 +208,7 @@ public class EvolvioBrain implements Brain {
 	@Override
 	public double getOutput(String name) {
 
-		int end = BRAIN_WIDTH - 1;
+		int end = brainWidth - 1;
 		Integer index = outputIndecies.get(name);
 		if(index == null) { 
 			System.err.println("Requested brain output that does not exist: \"" + name + "\""); 
@@ -222,24 +224,28 @@ public class EvolvioBrain implements Brain {
 
 	@Override
 	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired) {
+		System.out.println("inputs: " + inputsRequired);
+		
+		brainHeight = Math.max(inputsRequired.size(), outputsRequired.size()) + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
+		
 		int parentsTotal = parents.size();
-		Axon[][][] newBrain = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
-		double[][] newNeurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
+		Axon[][][] newAxons = new Axon[brainWidth - 1][brainHeight][brainHeight - 1];
+		double[][] newNeurons = new double[brainWidth][brainHeight];
 		float randomParentRotation = EvolvioMod.main.random(0, 1);
-		for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
-			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-				for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
-					float axonAngle = (float) (Math.atan2((y + z) / 2.0 - BRAIN_HEIGHT / 2.0,
-							x - BRAIN_WIDTH / 2) / (2 * Math.PI) + Math.PI);
+		for (int x = 0; x < brainWidth - 1; x++) {
+			for (int y = 0; y < brainHeight; y++) {
+				for (int z = 0; z < brainHeight - 1; z++) {
+					float axonAngle = (float) (Math.atan2((y + z) / 2.0 - brainHeight / 2.0,
+							x - brainWidth / 2) / (2 * Math.PI) + Math.PI);
 					Creature parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
 					EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon.getBrain();
-					newBrain[x][y][z] = parentBrain.axons[x][y][z].mutateAxon();
+					newAxons[x][y][z] = parentBrain.axons[x][y][z].mutateAxon();
 				}
 			}
 		}
-		for (int x = 0; x < BRAIN_WIDTH; x++) {
-			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-				float axonAngle = (float) (Math.atan2(y - BRAIN_HEIGHT / 2.0, x - BRAIN_WIDTH / 2)
+		for (int x = 0; x < brainWidth; x++) {
+			for (int y = 0; y < brainHeight; y++) {
+				float axonAngle = (float) (Math.atan2(y - brainHeight / 2.0, x - brainWidth / 2)
 						/ (2 * Math.PI) + Math.PI);
 				Creature parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
 				EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon.getBrain();
@@ -248,7 +254,7 @@ public class EvolvioBrain implements Brain {
 		}
 		
 		EvolvioBrain b = new EvolvioBrain();
-		b.axons = newBrain;
+		b.axons = newAxons;
 		b.neurons = newNeurons;
 		b.memories = new double[MEMORY_COUNT];
 		
@@ -272,8 +278,8 @@ public class EvolvioBrain implements Brain {
 		final float neuronSize = 0.4f;
 		final float backgroundX = (-1.7f - neuronSize) * scaleUp;
 		final float backgroundY = -neuronSize * scaleUp;
-		final float backgroundHeight = (BRAIN_HEIGHT + neuronSize * 2) * scaleUp;
-		final float backgroundWidth = (2.4f + BRAIN_WIDTH + neuronSize * 2) * scaleUp;
+		final float backgroundHeight = (brainHeight + neuronSize * 2) * scaleUp;
+		final float backgroundWidth = (2.4f + brainWidth + neuronSize * 2) * scaleUp;
 		EvolvioMod.main.noStroke();
 		EvolvioMod.main.fill(0, 0, 0.4f);
 		EvolvioMod.main.rect(backgroundX, backgroundY,backgroundWidth, backgroundHeight);
@@ -286,7 +292,7 @@ public class EvolvioBrain implements Brain {
 		//		"Mem", "Const." };
 		
 		// input labels
-		String[] inputLabels = new String[brain.BRAIN_HEIGHT]; 
+		String[] inputLabels = new String[brain.brainHeight]; 
 		int placeholderCount = Math.max(0, brain.outputs.size() - brain.inputs.size());
 		
 		for(int i = 0; i < brain.inputs.size(); i++) {
@@ -296,13 +302,13 @@ public class EvolvioBrain implements Brain {
 			inputLabels[brain.inputs.size() + i] = getPlaceholderLabel(i);
 		}
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			inputLabels[/* brain.inputs.size() + placeholderCount + i*/ BRAIN_HEIGHT-MEMORY_COUNT-1 + i] = "Mem";
+			inputLabels[/* brain.inputs.size() + placeholderCount + i*/ brainHeight-MEMORY_COUNT-1 + i] = "Mem";
 		}
 		inputLabels[inputLabels.length-1] = "Const.";
 		
 		// output labels
 		
-		String[] outputLabels = new String[brain.BRAIN_HEIGHT]; 
+		String[] outputLabels = new String[brain.brainHeight]; 
 		placeholderCount = Math.max(0, brain.inputs.size() - brain.outputs.size());
 		
 		for(int i = 0; i < brain.outputs.size(); i++) {
@@ -312,7 +318,7 @@ public class EvolvioBrain implements Brain {
 			outputLabels[brain.outputs.size() + i] = getPlaceholderLabel(i);
 		}
 		for (int i = 0; i < MEMORY_COUNT; i++) {
-			outputLabels[/*brain.outputs.size() + placeholderCount + i*/  BRAIN_HEIGHT-MEMORY_COUNT-1 + i] = "Mem";
+			outputLabels[/*brain.outputs.size() + placeholderCount + i*/  brainHeight-MEMORY_COUNT-1 + i] = "Mem";
 		}
 		outputLabels[outputLabels.length-1] = "Const.";
 		
@@ -338,7 +344,7 @@ public class EvolvioBrain implements Brain {
 		//EvolvioMod.main.text("Given input / output", (-neuronSize - 0.1f) * scaleUp, (y + (neuronSize * 0.6f)) * scaleUp);
 		
 		
-		for (int y = 0; y < brain.BRAIN_HEIGHT; y++) {
+		for (int y = 0; y < brain.brainHeight; y++) {
 			if(y >= brain.inputs.size() && y < inputLabels.length-MEMORY_COUNT-1) {EvolvioMod.main.fill(unusedNodeTextColor);}
 			else if(y >= brain.inputs.size()) {EvolvioMod.main.fill(specialNodeTextColor);}
 			else 	         			                                           {EvolvioMod.main.fill(nodeTextColor);}
@@ -351,12 +357,12 @@ public class EvolvioBrain implements Brain {
 			else 				          {EvolvioMod.main.fill(nodeTextColor);}
 			
 			EvolvioMod.main.textAlign(EvolvioMod.main.LEFT);
-			EvolvioMod.main.text(outputLabels[y], (BRAIN_WIDTH - 1 + neuronSize + 0.1f) * scaleUp,
+			EvolvioMod.main.text(outputLabels[y], (brainWidth - 1 + neuronSize + 0.1f) * scaleUp,
 					(y + (neuronSize * 0.6f)) * scaleUp);
 		}
 		EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
-		for (int x = 0; x < brain.BRAIN_WIDTH; x++) {
-			for (int y = 0; y < brain.BRAIN_HEIGHT; y++) {
+		for (int x = 0; x < brain.brainWidth; x++) {
+			for (int y = 0; y < brain.brainHeight; y++) {
 				EvolvioMod.main.noStroke();
 				double val = brain.neurons[x][y];
 				EvolvioMod.main.fill(neuronFillColor(val));
@@ -366,12 +372,12 @@ public class EvolvioBrain implements Brain {
 						(y + (neuronSize * 0.6f)) * scaleUp);
 			}
 		}
-		if (mX >= 0 && mX < brain.BRAIN_WIDTH && mY >= 0 && mY < brain.BRAIN_HEIGHT) {
-			for (int y = 0; y < brain.BRAIN_HEIGHT; y++) {
-				if (mX >= 1 && mY < brain.BRAIN_HEIGHT - 1) {
+		if (mX >= 0 && mX < brain.brainWidth && mY >= 0 && mY < brain.brainHeight) {
+			for (int y = 0; y < brain.brainHeight; y++) {
+				if (mX >= 1 && mY < brain.brainHeight - 1) {
 					brain.drawAxon(mX - 1, y, mX, mY, scaleUp);
 				}
-				if (mX < brain.BRAIN_WIDTH - 1 && y < brain.BRAIN_HEIGHT - 1) {
+				if (mX < brain.brainWidth - 1 && y < brain.brainHeight - 1) {
 					brain.drawAxon(mX, mY, mX + 1, y, scaleUp);
 				}
 			}
@@ -414,10 +420,10 @@ public class EvolvioBrain implements Brain {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("Axons:");
-		for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
+		for (int x = 0; x < brainWidth - 1; x++) {
 			s.append("\nLayer " + x + "\n");
-			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-				for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
+			for (int y = 0; y < brainHeight; y++) {
+				for (int z = 0; z < brainHeight - 1; z++) {
 					s.append(axons[x][y][z] + "\t");
 				}
 				s.append("\n");

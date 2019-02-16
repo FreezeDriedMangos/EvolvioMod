@@ -84,8 +84,6 @@ public class Creature extends SoftBody {
 
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
 		
-		//TODO: this below if statement always triggers (reproduction bug)
-		//REPRODUCTION BUG
 		if(tbrain == null) {
 			peripherals = ModLoader.createPeripherals(this, board);
 			brain = ModLoader.createBrain(this, tb);
@@ -133,7 +131,7 @@ public class Creature extends SoftBody {
 		rotation = rot;
 		vr = tvr;
 		isCreature = true;
-		id = board.creatureIDUpTo + 1;
+		
 		if (tname.length() >= 1) {
 			if (mutateName) {
 				name = mutateName(tname);
@@ -145,7 +143,7 @@ public class Creature extends SoftBody {
 			name = createNewName();
 		}
 		parents = tparents;
-		board.creatureIDUpTo++;
+		board.softBodyIDUpTo++;
 		// visionAngle = 0;
 		// visionDistance = 0;
 		// visionEndX = getVisionStartX();
@@ -368,7 +366,7 @@ public class Creature extends SoftBody {
 //			action.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
 //		}
 		for(CreatureFeatureDrawer drawer : featureDrawers) {
-			drawer.preCreatureDraw(this, board, scaleUp, overworldDraw);
+			drawer.postCreatureDraw(this, board, scaleUp, overworldDraw);
 		}
 	}
 
@@ -387,8 +385,8 @@ public class Creature extends SoftBody {
 
 	public void accelerate(double amount, double timeStep) {
 		double multiplied = amount * timeStep / getMass();
-		vx = vx + Math.cos(rotation) * multiplied;
-		vy = vy + Math.sin(rotation) * multiplied;
+		super.setVx(getVX() + Math.cos(rotation) * multiplied);
+		super.setVy(getVY() + Math.sin(rotation) * multiplied);
 		if (amount >= 0) {
 			loseEnergy(amount * ACCELERATION_ENERGY * timeStep);
 		} else {
@@ -590,11 +588,13 @@ public class Creature extends SoftBody {
 			ModLoader.creatureEatBehavior.creatureDepositFoodToTile(this, getRandomCoveredTile(), energy / pieces);
 			// TODO: this function should go in CreatureEatBehavior
 		}
-		for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
-			for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
-				board.softBodiesInPositions[x][y].remove(this);
-			}
-		}
+//		for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
+//			for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
+//				board.softBodiesInPositions[x][y].remove(this);
+//			}
+//		}
+		
+		board.creatureQuadTree.remove(collisionBox);
 		if (board.selectedCreature == this) {
 			board.unselect();
 		}
@@ -903,6 +903,10 @@ public class Creature extends SoftBody {
 		return brain;
 	}
 	
+	public boolean isAvatar() {
+		return board.avatar == this;
+	}
+	
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		
@@ -928,7 +932,7 @@ public class Creature extends SoftBody {
 		
 		s.append("+|- Attributes\n");
 		for(Entry<String, CreatureAttribute> ent : attributes.entrySet()) {
-			s.append(ent.getKey() + ":" + ent.getValue().getClass().getCanonicalName() + "\n");
+			s.append("-|+" + ent.getKey() + ":" + ent.getValue().getClass().getCanonicalName() + "\n");
 			s.append(ent.getValue().makeString());
 			s.append("\n");
 		}
@@ -936,7 +940,7 @@ public class Creature extends SoftBody {
 		
 		s.append("+|- Actions\n");
 		for(CreatureAction a : actions) {
-			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
 			s.append(a.toString());
 			s.append("\n");
 		}
@@ -944,7 +948,7 @@ public class Creature extends SoftBody {
 		
 		s.append("+|- Peripherals\n");
 		for(CreaturePeripheral a : peripherals) {
-			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
 			s.append(a.toString());
 			s.append("\n");
 		}
@@ -952,7 +956,7 @@ public class Creature extends SoftBody {
 		
 		s.append("+|- FeatureDrawers\n");
 		for(CreatureFeatureDrawer a : featureDrawers) {
-			s.append(a.getClass().getCanonicalName() + "\n");
+			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
 			s.append(a.toString());
 			s.append("\n");
 		}
