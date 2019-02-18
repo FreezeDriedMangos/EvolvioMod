@@ -598,6 +598,10 @@ public class Creature extends SoftBody {
 		if (board.selectedCreature == this) {
 			board.unselect();
 		}
+		
+		if(board.avatar == this) {
+			board.avatar = null;
+		}
 	}
 
 	public void reproduce(double babySize, double timeStep) {
@@ -642,30 +646,9 @@ public class Creature extends SoftBody {
 //				}
 				
 				List<CreaturePeripheral> newPeripherals = ModLoader.createPeripherals(null, board);//ModLoader.getOffspringPeripherals(parentPeripherals);
+				
 				Brain newBrain = ModLoader.getOffspringBrain(newPeripherals, parents);
-//				Axon[][][] newBrain = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
-//				double[][] newNeurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
-//				float randomParentRotation = EvolvioMod.main.random(0, 1);
-//				for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
-//					for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//						for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
-//							float axonAngle = (float) (Math.atan2((y + z) / 2.0 - BRAIN_HEIGHT / 2.0,
-//									x - BRAIN_WIDTH / 2) / (2 * Math.PI) + Math.PI);
-//							Creature parentForAxon = parents
-//									.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
-//							newBrain[x][y][z] = parentForAxon.axons[x][y][z].mutateAxon();
-//						}
-//					}
-//				}
-//				for (int x = 0; x < BRAIN_WIDTH; x++) {
-//					for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//						float axonAngle = (float) (Math.atan2(y - BRAIN_HEIGHT / 2.0, x - BRAIN_WIDTH / 2)
-//								/ (2 * Math.PI) + Math.PI);
-//						Creature parentForAxon = parents
-//								.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
-//						newNeurons[x][y] = parentForAxon.neurons[x][y];
-//					}
-//				}
+				System.out.println("Offspring brain:\n" + newBrain.makeString());
 				
 				for (int i = 0; i < parentsTotal; i++) {
 					int chosenIndex = (int) EvolvioMod.main.random(0, parents.size());
@@ -685,10 +668,7 @@ public class Creature extends SoftBody {
 				}
 				newSaturation = 1;
 				newBrightness = 1;
-//				board.creatures.add(new Creature(newPX, newPY, 0, 0, babySize, density, newHue, newSaturation,
-//						newBrightness, board, board.year, EvolvioMod.main.random(0, (float) (2 * Math.PI)), 0,
-//						stitchName(parentNames), andifyParents(parentNames), true, newBrain, newNeurons, highestGen + 1,
-//						newMouthHue));
+				
 				Creature baby = new Creature(newPX, newPY, 0, 0, babySize, density, newHue, newSaturation,
 						newBrightness, board, board.year, EvolvioMod.main.random(0, (float) (2 * Math.PI)), 0,
 						stitchName(parentNames), andifyParents(parentNames), true, newBrain, newPeripherals, highestGen + 1,
@@ -696,7 +676,6 @@ public class Creature extends SoftBody {
 				
 				ModLoader.setOffspringAttributes(baby, parentMasterList, board);
 				
-				//board.creatures.add(baby);
 				board.addCreature(baby);
 			}
 		}

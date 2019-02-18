@@ -795,6 +795,7 @@ public final class ModLoader {
 			e.printStackTrace();
 		} 
 		
+		System.err.println("Brain reproduction encountered an error");
 		return null;
 	}
 

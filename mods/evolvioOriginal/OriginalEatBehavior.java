@@ -21,15 +21,15 @@ public class OriginalEatBehavior implements CreatureEatBehavior {
 	public double getCreatureEatAmount(Creature c, Tile t, double attemptedAmount, double timeStep) {
 		double amt = attemptedAmount/(1.0+PApplet.dist(0,0,(float)c.getVX(),(float)c.getVY())*EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER); // The faster you're moving, the less efficiently you can eat.
 		
-		avgAttemptAmountRatio += (attemptedAmount/amt)/avgOver;
-		cnt++;
-		cnt %= avgOver;
-		if(cnt == 0) {
-			System.out.println("Average Eat Attempt to Actual Amount Ratio: " + avgAttemptAmountRatio);
-			avgAttemptAmountRatio = 0;
-			
-			// seems to hover around 1.5, between 1.2 and 1.6
-		}
+//		avgAttemptAmountRatio += (attemptedAmount/amt)/avgOver;
+//		cnt++;
+//		cnt %= avgOver;
+//		if(cnt == 0) {
+//			System.out.println("Average Eat Attempt to Actual Amount Ratio: " + avgAttemptAmountRatio);
+//			avgAttemptAmountRatio = 0;
+//			
+//			// seems to hover around 1.5, between 1.2 and 1.6
+//		}
 		
 		
 		return amt;

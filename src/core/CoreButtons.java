@@ -213,6 +213,10 @@ public class CoreButtons {
 		
 		@Override
 		public void click(int relX, int relY) {
+			if(EvolvioMod.main.evoBoard.avatar != null) {
+				return;
+			}
+			
 			flashVal = 1+FLASH_FALLOFF;
 			Creature c = EvolvioMod.main.evoBoard.spawnCreature();
 			c.name = "~Avatar~";
@@ -221,7 +225,7 @@ public class CoreButtons {
 
 		@Override
 		public String getText() {
-			return "Create an Avatar";
+			return EvolvioMod.main.evoBoard.avatar == null ? "Create an Avatar" : "Avatar already created";
 		}
 
 		@Override

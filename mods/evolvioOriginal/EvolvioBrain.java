@@ -19,9 +19,10 @@ public class EvolvioBrain implements Brain {
 	final int MAX_NAME_LENGTH = 10;
 	final float BRIGHTNESS_THRESHOLD = 0.7f;
 	final double STARTING_AXON_VARIABILITY = 1.0;
+	final int MEMORY_COUNT = 5;
 	
-	int brainHeight;// = 13;
-	int brainWidth = BRAIN_WIDTH;
+	private int brainHeight = 0;// = 13;
+	private int brainWidth = BRAIN_WIDTH;
 	
 	float preferredRank = 8;
 	double[] visionAngles = { 0, -0.4, 0.4 };
@@ -31,7 +32,6 @@ public class EvolvioBrain implements Brain {
 	double[] visionOccludedX = new double[visionAngles.length];
 	double[] visionOccludedY = new double[visionAngles.length];
 	double visionResults[] = new double[9];
-	int MEMORY_COUNT = 5;
 	double[] memories;
 
 	
@@ -42,9 +42,20 @@ public class EvolvioBrain implements Brain {
 	List<String> outputs = null;
 	List<String> inputs = null;
 	
+	StackTraceElement[] whereDidIComeFrom; // TODO: remove this debug field
+	
+	public EvolvioBrain() {
+		whereDidIComeFrom = Thread.currentThread().getStackTrace();
+	}
+	
 	@Override
 	public void init(Creature c, Board b, List<String> inputsRequired, List<String> outputsRequired) {
 		//this.BRAIN_HEIGHT = Math.max(/*inputsRequired.size()*/BRAIN_HEIGHT+inputsRequired.size(), outputsRequired.size());
+		if(brainHeight != 0) {
+			System.err.println("Attempted initialization on an offspring brain");
+			return;
+		}
+		
 		for(int i = 0; i < outputsRequired.size(); i++) {
 			outputIndecies.put(outputsRequired.get(i), i);
 		}
@@ -225,8 +236,14 @@ public class EvolvioBrain implements Brain {
 	@Override
 	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired) {
 		System.out.println("inputs: " + inputsRequired);
+		System.out.println("outputs: " + outputsRequired);
 		
 		brainHeight = Math.max(inputsRequired.size(), outputsRequired.size()) + MEMORY_COUNT+1; // 1 is for the constant and 1 is for the size
+		System.out.println("brainHeight: " + brainHeight);
+		System.out.println("brainWidth: " + brainWidth);
+		
+		System.out.println("memorycount: " + MEMORY_COUNT);
+		
 		
 		int parentsTotal = parents.size();
 		Axon[][][] newAxons = new Axon[brainWidth - 1][brainHeight][brainHeight - 1];
@@ -254,6 +271,7 @@ public class EvolvioBrain implements Brain {
 		}
 		
 		EvolvioBrain b = new EvolvioBrain();
+		b.brainHeight = brainHeight;
 		b.axons = newAxons;
 		b.neurons = newNeurons;
 		b.memories = new double[MEMORY_COUNT];
@@ -419,7 +437,14 @@ public class EvolvioBrain implements Brain {
 	public String makeString() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("Axons:");
+		if(brainHeight == 0) {
+			System.err.println("Failed to initialize brain that was constructed at:");
+			for(StackTraceElement e : this.whereDidIComeFrom) {
+				System.err.println("\t" + e);
+			}
+		}
+		
+		s.append("Axons:"); /* System.err.println("brain height " + brainHeight); */
 		for (int x = 0; x < brainWidth - 1; x++) {
 			s.append("\nLayer " + x + "\n");
 			for (int y = 0; y < brainHeight; y++) {

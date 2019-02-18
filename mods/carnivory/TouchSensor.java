@@ -32,6 +32,7 @@ public class TouchSensor implements CreaturePeripheral, CreatureFeatureDrawer {
 		List<String> list = new ArrayList<>();
 
 		list.add("touch");
+		// TODO: add a "angleOfTouch" input
 		
 		return list;
 	}
@@ -47,6 +48,8 @@ public class TouchSensor implements CreaturePeripheral, CreatureFeatureDrawer {
 		double touchX = creature.px - MAX_TOUCH_DISTANCE;
 		double touchY = creature.py - MAX_TOUCH_DISTANCE;
 		double touchS = 2.0*MAX_TOUCH_DISTANCE;
+		
+		// TODO: this doesn't work anymore
 		
 		List<SoftBody> potentialTouchers = board.getSoftBodiesInArea(touchX, touchY, touchS, touchS);
 		for(SoftBody s : potentialTouchers) {
