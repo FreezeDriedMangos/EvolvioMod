@@ -12,7 +12,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.font.TextAttribute;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -48,6 +47,7 @@ import core.modAPI.CreaturePeripheral;
 //import core.modAPI.CreaturePeripheralDrawer;
 import core.modAPI.TileAttribute;
 import core.modAPI.TileDrawer;
+//import core.modAPI.metaTools.ExternalModRequirements;
 
 public final class ModLoader {
 //	public static final String jarPath = ClassLoader.getSystemClassLoader().getResource(".").getPath();
@@ -217,6 +217,7 @@ public final class ModLoader {
 		while(index < paths.size()) {
 			index = makeListingForMod(paths, index, contentPanel, pathPanels, pathClasses, warningLabel);
 		}
+		paths.clear();
 		refreshConflicts(paths, pathPanels, pathClasses, warningLabel);
 		
 		frame.pack();
@@ -254,7 +255,7 @@ public final class ModLoader {
 			panel.setLayout(layout);
 			
 			JCheckBox box = new JCheckBox();
-			box.setSelected(true);
+			box.setSelected(false);
 			box.addItemListener(new ItemListener() { 
 				ArrayList<Path> thesePaths = thisModsPaths;
 				ArrayList<JCheckBox> theseBoxes = thisModsCheckBoxes;
@@ -308,7 +309,7 @@ public final class ModLoader {
 			panel.add(new JLabel("    "), Component.LEFT_ALIGNMENT);
 			
 			JCheckBox box = new JCheckBox();
-			box.setSelected(true);
+			box.setSelected(false);
 			box.addItemListener(new ItemListener() { 
 				Path path = p;
 				

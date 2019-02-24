@@ -302,6 +302,7 @@ public class EvolvioBrain implements Brain {
 		EvolvioMod.main.fill(0, 0, 0.4f);
 		EvolvioMod.main.rect(backgroundX, backgroundY,backgroundWidth, backgroundHeight);
 
+		
 		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
 		EvolvioMod.main.strokeWeight(2);
 		EvolvioMod.main.textFont(font, 0.58f * scaleUp);

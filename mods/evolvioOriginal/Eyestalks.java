@@ -23,19 +23,27 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 	double maxVisionDistance;
 	// double visionAngle;
 	// double visionDistance;
-	double[] visionOccludedX = new double[visionAngles.length];
-	double[] visionOccludedY = new double[visionAngles.length];
+	private double[] visionOccludedX = new double[visionAngles.length];
+	private double[] visionOccludedY = new double[visionAngles.length];
 	double visionResults[] = new double[9];
 
 	//p List<String> inputNames;
 	
+	private void setVisionOcclusion(int i, double x, double y) {
+		if(i != 0 && (x == 0 || y == 0)) {
+			System.err.println("Eyestalk whoops!");
+			
+			for(StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				System.err.println("\t" + e);
+			}
+		}
+		
+		visionOccludedX[i] = x;
+		visionOccludedY[i] = y;
+	}
+	
 	@Override
 	public void init() {
-//		// TODO Auto-generated method stub
-//		if(inputNames == null) {
-//			inputNames = getInputNames();
-//		}
-		
 		maxVisionDistance = visionDistances[0];
 		for(double d : visionDistances) {
 			maxVisionDistance = Math.max(maxVisionDistance, d);
@@ -68,32 +76,14 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 
 			double endX = getVisionEndX(k, creature);
 			double endY = getVisionEndY(k, creature);
-
-			visionOccludedX[k] = endX;
-			visionOccludedY[k] = endY;
+			//System.out.printf("creature: (%f, %f) vision: (%f, %f) \n", creature.px, creature.py, endX, endY);
+			
+			setVisionOcclusion(k, endX, endY);
 			int c = creature.getColorAt(endX, endY);
 			visionResults[k * 3] = EvolvioMod.main.hue(c);
 			visionResults[k * 3 + 1] = EvolvioMod.main.saturation(c);
 			visionResults[k * 3 + 2] = EvolvioMod.main.brightness(c);
-
-			int tileX = 0;
-			int tileY = 0;
-			int prevTileX = -1;
-			int prevTileY = -1;
-			ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
-//			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
-//				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
-//				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
-//				if (tileX != prevTileX || tileY != prevTileY) {
-//					addPVOs(tileX, tileY, creature, board, potentialVisionOccluders);
-//					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
-//						addPVOs(prevTileX, tileY, creature, board, potentialVisionOccluders);
-//						addPVOs(tileX, prevTileY, creature, board, potentialVisionOccluders);
-//					}
-//				}
-//				prevTileX = tileX;
-//				prevTileY = tileY;
-//			}
+			
 			List<SoftBody> pvo = board.getSoftBodiesInArea(visionStartX-maxVisionDistance, visionStartY-maxVisionDistance, maxVisionDistance*2f, maxVisionDistance*2f);
 			
 			double[][] rotationMatrix = new double[2][2];
@@ -101,8 +91,8 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 			rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
 			rotationMatrix[1][0] = -rotationMatrix[0][1];
 			double visionLineLength = visionDistances[k];
-			for (int i = 0; i < potentialVisionOccluders.size(); i++) {
-				SoftBody body = potentialVisionOccluders.get(i);
+			for (int i = 0; i < pvo.size(); i++) {
+				SoftBody body = pvo.get(i);
 				double x = body.px - creature.px;
 				double y = body.py - creature.py;
 				double r = body.getRadius();
@@ -114,8 +104,11 @@ public class Eyestalks implements CreaturePeripheral, CreatureFeatureDrawer {
 							|| distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an
 																								// occlussion.
 						visionLineLength = translatedX - Math.sqrt(r * r - translatedY * translatedY);
-						visionOccludedX[k] = visionStartX + visionLineLength * Math.cos(visionTotalAngle);
-						visionOccludedY[k] = visionStartY + visionLineLength * Math.sin(visionTotalAngle);
+						
+						double visX = visionStartX + visionLineLength * Math.cos(visionTotalAngle);
+						double visY = visionStartY + visionLineLength * Math.sin(visionTotalAngle);
+						setVisionOcclusion(k, visX, visY);
+						
 						visionResults[k * 3] = body.hue;
 						visionResults[k * 3 + 1] = body.saturation;
 						visionResults[k * 3 + 2] = body.brightness;
