@@ -150,15 +150,15 @@ public class NewPseudoanimalsBrain implements Brain {
 	}
 
 	@Override
-	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired) {
+	public Brain getOffspring(List<Brain> parents, List<String> inputsRequired, List<String> outputsRequired) {
 		NewPseudoanimalsBrain offspring = new NewPseudoanimalsBrain();
 				
 		List<NewPseudoanimalsBrain> parentBrains = new ArrayList<>();
-		for(Creature parent : parents) {
-			parentBrains.add((NewPseudoanimalsBrain)parent.getBrain());
+		for(Brain parent : parents) {
+			parentBrains.add((NewPseudoanimalsBrain)parent);
 		}
 		
-		int numNeurons = ((NewPseudoanimalsBrain)parents.get(0).getBrain()).neurons.length;
+		int numNeurons = parentBrains.get(0).neurons.length;
 		neurons = new double[numNeurons];
 		
 		axonWeights = new double[numNeurons][numNeurons]; 

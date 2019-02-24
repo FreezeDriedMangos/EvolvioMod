@@ -53,7 +53,7 @@ public interface Brain {
 	 * @return an entirely new brain object (with no references shared with its parents) that is the result of 
 	 * the parents mating
 	 */
-	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired);
+	public Brain getOffspring(List<Brain> parents, List<String> inputsRequired, List<String> outputsRequired);
 	
 	/**
 	 * Draw the brain! Please use Processing's built-in tools for this. Don't worry about where to draw it, the drawspace has already been translated to the right spot

@@ -234,7 +234,7 @@ public class EvolvioBrain implements Brain {
 	}
 
 	@Override
-	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired) {
+	public Brain getOffspring(List<Brain> parents, List<String> inputsRequired, List<String> outputsRequired) {
 		System.out.println("inputs: " + inputsRequired);
 		System.out.println("outputs: " + outputsRequired);
 		
@@ -254,8 +254,8 @@ public class EvolvioBrain implements Brain {
 				for (int z = 0; z < brainHeight - 1; z++) {
 					float axonAngle = (float) (Math.atan2((y + z) / 2.0 - brainHeight / 2.0,
 							x - brainWidth / 2) / (2 * Math.PI) + Math.PI);
-					Creature parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
-					EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon.getBrain();
+					Brain parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
+					EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon;
 					newAxons[x][y][z] = parentBrain.axons[x][y][z].mutateAxon();
 				}
 			}
@@ -264,8 +264,8 @@ public class EvolvioBrain implements Brain {
 			for (int y = 0; y < brainHeight; y++) {
 				float axonAngle = (float) (Math.atan2(y - brainHeight / 2.0, x - brainWidth / 2)
 						/ (2 * Math.PI) + Math.PI);
-				Creature parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
-				EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon.getBrain();
+				Brain parentForAxon = parents.get((int) (((axonAngle + randomParentRotation) % 1.0) * parentsTotal));
+				EvolvioBrain parentBrain = (EvolvioBrain) parentForAxon;
 				newNeurons[x][y] = parentBrain.neurons[x][y];
 			}
 		}

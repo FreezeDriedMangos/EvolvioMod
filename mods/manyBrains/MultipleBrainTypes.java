@@ -7,11 +7,11 @@ import java.util.Scanner;
 
 import core.Board;
 import core.Creature;
+import core.EvolvioUtils;
 import core.modAPI.Brain;
+import evolvioOriginal.EvolvioBrain;
 //import core.modAPI.metaTools.ExternalModRequirements;
 import processing.core.PFont;
-
-import evolvioOriginal.EvolvioBrain;
 
 public class MultipleBrainTypes implements Brain/* , ExternalModRequirements */{
 
@@ -43,13 +43,27 @@ public class MultipleBrainTypes implements Brain/* , ExternalModRequirements */{
 	}
 
 	@Override
-	public Brain getOffspring(List<Creature> parents, List<String> inputsRequired, List<String> outputsRequired) {
-		BrainType type = ((MultipleBrainTypes)parents.get(0).getBrain()).type;
+	public Brain getOffspring(List<Brain> parents, List<String> inputsRequired, List<String> outputsRequired) {
+		BrainType type = ((MultipleBrainTypes)parents.get(0)).type;
+		
+		if(type == null) {
+			System.err.println("Parents had no brain type.");
+			EvolvioUtils.printStackTrace(System.err);
+			
+			Brain child = new MultipleBrainTypes();
+			child.init(null, null, inputsRequired, outputsRequired);
+			return child;
+		}
+		
+		List<Brain> actualParents = new ArrayList<>();
+		for(Brain parent : parents) {
+			actualParents.add(((MultipleBrainTypes)parent).actualBrain);
+		}
 		
 		if(type == BrainType.EVOLVIO) {
-			return new EvolvioBrain().getOffspring(parents, inputsRequired, outputsRequired);
+			return new EvolvioBrain().getOffspring(actualParents, inputsRequired, outputsRequired);
 		} else if (type == BrainType.NEWPSEUDO) {
-			return new NewPseudoanimalsBrain().getOffspring(parents, inputsRequired, outputsRequired);
+			return new NewPseudoanimalsBrain().getOffspring(actualParents, inputsRequired, outputsRequired);
 		}
 		
 		return null;
@@ -69,6 +83,9 @@ public class MultipleBrainTypes implements Brain/* , ExternalModRequirements */{
 	public Brain fromString(String s) {
 		Scanner scan = new Scanner(s);
 		String typeString = scan.nextLine();
+		scan.close();
+		
+		s = s.substring(s.indexOf('\n')+1);
 		
 		if(typeString.equals(BrainType.EVOLVIO.toString())) {
 			return new EvolvioBrain().fromString(s);
@@ -88,7 +105,18 @@ public class MultipleBrainTypes implements Brain/* , ExternalModRequirements */{
 			}
 		}
 		
-		return true;
+		List<Brain> actualParents = new ArrayList<>();
+		for(Brain parent : parents) {
+			actualParents.add(((MultipleBrainTypes)parent).actualBrain);
+		}
+		
+		if(type == BrainType.EVOLVIO) {
+			return new EvolvioBrain().canMate(actualParents);
+		} else if (type == BrainType.NEWPSEUDO) {
+			return new NewPseudoanimalsBrain().canMate(actualParents);
+		}
+		
+		return false;
 	}
 
 //	@Override

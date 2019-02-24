@@ -627,6 +627,10 @@ public class Creature extends SoftBody {
 				}
 			}
 
+			if(!ModLoader.canReproduce(parents)) {
+				return;
+			}
+			
 			ArrayList<Creature> parentMasterList = new ArrayList<>();
 			parentMasterList.addAll(parents);
 			

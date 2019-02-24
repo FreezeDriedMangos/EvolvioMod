@@ -791,7 +791,12 @@ public final class ModLoader {
 			ArrayList<String> outputs = new ArrayList<>();
 			outputs.addAll(brainOutputs);
 			
-			return brainModel.getConstructor().newInstance().getOffspring(parents, inputs, outputs);
+			List<Brain> parentBrains = new ArrayList<>();
+			for(Creature parent : parents) {
+				parentBrains.add(parent.brain);
+			}
+			
+			return brainModel.getConstructor().newInstance().getOffspring(parentBrains, inputs, outputs);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -818,5 +823,21 @@ public final class ModLoader {
 				baby.attributes.put(a.getName(), a);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) { e.printStackTrace(); }
 		}
+	}
+
+	public static boolean canReproduce(ArrayList<Creature> parents) {
+		List<Brain> p = new ArrayList<>();
+		for(Creature c : parents) {
+			p.add(c.getBrain());
+		}
+		
+		// canMate() is a "static" method, so this should be fine
+		try {
+			return brainModel.newInstance().canMate(p);
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
 	}
 }
