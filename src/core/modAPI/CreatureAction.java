@@ -42,6 +42,4 @@ public interface CreatureAction {
 	 * @return the keys that the user needs to press to do this action along with the name of the action
 	 */
 	public String getUserInstructions();
-	
-	// TODO: add a manual control button function
 }

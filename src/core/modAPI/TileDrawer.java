@@ -41,4 +41,10 @@ public interface TileDrawer {
 	 * @return the color of the tile t
 	 */
 	public int getColor(Tile t);
+
+	/**
+	 * 
+	 * @return the color of the empty space drawn behind the board
+	 */
+	public int getBackgroundColor();
 }

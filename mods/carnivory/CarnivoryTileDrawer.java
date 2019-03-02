@@ -104,4 +104,10 @@ public class CarnivoryTileDrawer implements TileDrawer, Button {
 	@Override public float getFlashAlpha() { return 0; }
 
 	@Override public void init() { }
+	
+
+	@Override
+	public int getBackgroundColor() {
+		return EvolvioMod.main.color(0, 0, 0.1f);
+	}
 }

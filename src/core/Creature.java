@@ -80,7 +80,7 @@ public class Creature extends SoftBody {
 	
 	public Creature(double tpx, double tpy, double tvx, double tvy, double tenergy, double tdensity, double thue,
 			double tsaturation, double tbrightness, Board tb, double bt, double rot, double tvr, String tname,
-			String tparents, boolean mutateName, /*Axon[][][] tbrain, double[][] tneurons,*/ Brain tbrain, List<CreaturePeripheral> per, int tgen, double tmouthHue) {
+			String tparents, boolean mutateName, Brain tbrain, List<CreaturePeripheral> per, int tgen, double tmouthHue) {
 
 		super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
 		
@@ -93,41 +93,6 @@ public class Creature extends SoftBody {
 			peripherals = per;
 		}
 		
-//		boolean firstPrint = true;
-//		System.out.println("\n" + (tbrain == null));
-//		for(StackTraceElement e : Thread.currentThread().getStackTrace()) {
-//			if(firstPrint) {firstPrint = false; System.out.println(e);}
-//			else { System.out.println("\t" +e); }
-//		}
-		
-//		if (tbrain == null) {
-//			axons = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
-//			neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
-//			for (int x = 0; x < BRAIN_WIDTH - 1; x++) {
-//				for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//					for (int z = 0; z < BRAIN_HEIGHT - 1; z++) {
-//						double startingWeight = 0;
-//						if (y == BRAIN_HEIGHT - 1) {
-//							startingWeight = (Math.random() * 2 - 1) * STARTING_AXON_VARIABILITY;
-//						}
-//						axons[x][y][z] = new Axon(startingWeight, AXON_START_MUTABILITY);
-//					}
-//				}
-//			}
-//			neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
-//			for (int x = 0; x < BRAIN_WIDTH; x++) {
-//				for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//					if (y == BRAIN_HEIGHT - 1) {
-//						neurons[x][y] = 1;
-//					} else {
-//						neurons[x][y] = 0;
-//					}
-//				}
-//			}
-//		} else {
-//			axons = tbrain;
-//			neurons = tneurons;
-//		}
 		rotation = rot;
 		vr = tvr;
 		isCreature = true;
@@ -144,17 +109,7 @@ public class Creature extends SoftBody {
 		}
 		parents = tparents;
 		board.softBodyIDUpTo++;
-		// visionAngle = 0;
-		// visionDistance = 0;
-		// visionEndX = getVisionStartX();
-		// visionEndY = getVisionStartY();
-//		for (int i = 0; i < 9; i++) {
-//			visionResults[i] = 0;
-//		}
-//		memories = new double[MEMORY_COUNT];
-//		for (int i = 0; i < MEMORY_COUNT; i++) {
-//			memories[i] = 0;
-//		}
+		
 		gen = tgen;
 		secondaryHue = tmouthHue;
 	}
@@ -164,60 +119,9 @@ public class Creature extends SoftBody {
 	}
 
 	public void drawBrain(PFont font, float scaleUp, int mX, int mY) {
-//		ModLoader.brainDrawer.drawBrain(brain, font, scaleUp, mX, mY);
 		brain.draw(font, scaleUp, mX, mY);
-		
-//		final float neuronSize = 0.4f;
-//		EvolvioMod.main.noStroke();
-//		EvolvioMod.main.fill(0, 0, 0.4f);
-//		EvolvioMod.main.rect((-1.7f - neuronSize) * scaleUp, -neuronSize * scaleUp,
-//				(2.4f + BRAIN_WIDTH + neuronSize * 2) * scaleUp, (BRAIN_HEIGHT + neuronSize * 2) * scaleUp);
-//
-//		EvolvioMod.main.ellipseMode(EvolvioMod.main.RADIUS);
-//		EvolvioMod.main.strokeWeight(2);
-//		EvolvioMod.main.textFont(font, 0.58f * scaleUp);
-//		EvolvioMod.main.fill(0, 0, 1);
-//		String[] inputLabels = { "0Hue", "0Sat", "0Bri", "1Hue", "1Sat", "1Bri", "2Hue", "2Sat", "2Bri", "Size", "MHue",
-//				"Mem", "Const." };
-//		String[] outputLabels = { "BHue", "Accel.", "Turn", "Eat", "Fight", "Birth", "How funny?", "How popular?",
-//				"How generous?", "How smart?", "MHue", "Mem", "Const." };
-//		for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//			EvolvioMod.main.textAlign(EvolvioMod.main.RIGHT);
-//			EvolvioMod.main.text(inputLabels[y], (-neuronSize - 0.1f) * scaleUp, (y + (neuronSize * 0.6f)) * scaleUp);
-//			EvolvioMod.main.textAlign(EvolvioMod.main.LEFT);
-//			EvolvioMod.main.text(outputLabels[y], (BRAIN_WIDTH - 1 + neuronSize + 0.1f) * scaleUp,
-//					(y + (neuronSize * 0.6f)) * scaleUp);
-//		}
-//		EvolvioMod.main.textAlign(EvolvioMod.main.CENTER);
-//		for (int x = 0; x < BRAIN_WIDTH; x++) {
-//			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//				EvolvioMod.main.noStroke();
-//				double val = neurons[x][y];
-//				EvolvioMod.main.fill(neuronFillColor(val));
-//				EvolvioMod.main.ellipse(x * scaleUp, y * scaleUp, neuronSize * scaleUp, neuronSize * scaleUp);
-//				EvolvioMod.main.fill(neuronTextColor(val));
-//				EvolvioMod.main.text(EvolvioMod.main.nf((float) val, 0, 1), x * scaleUp,
-//						(y + (neuronSize * 0.6f)) * scaleUp);
-//			}
-//		}
-//		if (mX >= 0 && mX < BRAIN_WIDTH && mY >= 0 && mY < BRAIN_HEIGHT) {
-//			for (int y = 0; y < BRAIN_HEIGHT; y++) {
-//				if (mX >= 1 && mY < BRAIN_HEIGHT - 1) {
-//					drawAxon(mX - 1, y, mX, mY, scaleUp);
-//				}
-//				if (mX < BRAIN_WIDTH - 1 && y < BRAIN_HEIGHT - 1) {
-//					drawAxon(mX, mY, mX + 1, y, scaleUp);
-//				}
-//			}
-//		}
 	}
-
-//	public void drawAxon(int x1, int y1, int x2, int y2, float scaleUp) {
-//		EvolvioMod.main.stroke(neuronFillColor(axons[x1][y1][y2].weight * neurons[x1][y1]));
-//
-//		EvolvioMod.main.line(x1 * scaleUp, y1 * scaleUp, x2 * scaleUp, y2 * scaleUp);
-//	}
-
+	
 	public void useBrain(double timeStep, boolean useOutput) {
 		HashMap<String, Double> peripheralInputs = new HashMap<>();
 		for(CreaturePeripheral p : peripherals) {
@@ -235,80 +139,14 @@ public class Creature extends SoftBody {
 			if (brain.getOutput("reproduce") > 0 && board.year - birthTime >= MATURE_AGE && energy > SAFE_SIZE) {
 				reproduce(SAFE_SIZE, timeStep);
 			}
-			//secondaryHue = Math.min(Math.max(brain.getOutput("secondaryHue"), 0), 1);
-			
-			//brain.useOutput(this, board, timeStep);
 			
 			for(CreatureAction a : actions) {
 				a.doAction(brain, this, board, timeStep);
 			}
 		}
-		
-//		for (int i = 0; i < 9; i++) {
-//			neurons[0][i] = visionResults[i];
-//		}
-//		neurons[0][9] = energy;
-//		neurons[0][10] = secondaryHue;
-//		for (int i = 0; i < MEMORY_COUNT; i++) {
-//			neurons[0][11 + i] = memories[i];
-//		}
-//		for (int x = 1; x < BRAIN_WIDTH; x++) {
-//			for (int y = 0; y < BRAIN_HEIGHT - 1; y++) {
-//				double total = 0;
-//				for (int input = 0; input < BRAIN_HEIGHT; input++) {
-//					total += neurons[x - 1][input] * axons[x - 1][input][y].weight;
-//				}
-//				if (x == BRAIN_WIDTH - 1) {
-//					neurons[x][y] = total;
-//				} else {
-//					neurons[x][y] = sigmoid(total);
-//				}
-//			}
-//		}
-//		if (useOutput) {
-//			int end = BRAIN_WIDTH - 1;
-//			hue = Math.min(Math.max(neurons[end][0], 0), 1);
-//			accelerate(neurons[end][1], timeStep);
-//			turn(neurons[end][2], timeStep);
-//			eat(neurons[end][3], timeStep);
-//			fight(neurons[end][4], timeStep);
-//			if (neurons[end][5] > 0 && board.year - birthTime >= MATURE_AGE && energy > SAFE_SIZE) {
-//				reproduce(SAFE_SIZE, timeStep);
-//			}
-//			secondaryHue = Math.min(Math.max(neurons[end][10], 0), 1);
-//			for (int i = 0; i < MEMORY_COUNT; i++) {
-//				memories[i] = neurons[end][11 + i];
-//			}
-//		}
 	}
 
-//	public double sigmoid(double input) {
-//		return 1.0 / (1.0 + Math.pow(2.71828182846, -input));
-//	}
-
-//	public int neuronFillColor(double d) {
-//		if (d >= 0) {
-//			return EvolvioMod.main.color(0, 0, 1, (float) (d));
-//		} else {
-//			return EvolvioMod.main.color(0, 0, 0, (float) (-d));
-//		}
-//	}
-//
-//	public int neuronTextColor(double d) {
-//		if (d >= 0) {
-//			return EvolvioMod.main.color(0, 0, 0);
-//		} else {
-//			return EvolvioMod.main.color(0, 0, 1);
-//		}
-//	}
-
 	public void drawSoftBody(float scaleUp, float camZoom, boolean overworldDraw) {
-//		for(CreaturePeripheral peripheral : peripherals) {
-//			peripheral.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
-//		}
-//		for(CreatureAction action : actions) {
-//			action.preCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
-//		}
 		for(CreatureFeatureDrawer drawer : featureDrawers) {
 			drawer.preCreatureDraw(this, board, scaleUp, overworldDraw);
 		}
@@ -358,13 +196,6 @@ public class Creature extends SoftBody {
 					(float) ((py - getRadius() * 1.4 - 0.07) * scaleUp));
 		}
 		
-
-//		for(CreaturePeripheral peripheral : peripherals) {
-//			peripheral.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
-//		}
-//		for(CreatureAction action : actions) {
-//			action.postCreatureDraw(this, board, scaleUp, camZoom, overworldDraw);
-//		}
 		for(CreatureFeatureDrawer drawer : featureDrawers) {
 			drawer.postCreatureDraw(this, board, scaleUp, overworldDraw);
 		}
@@ -418,39 +249,10 @@ public class Creature extends SoftBody {
 		double amount = ModLoader.creatureEatBehavior.getCreatureEatAmount(this, coveredTile, attemptedAmount,
 				timeStep);
 
-		
-		// the below original code is now part of a default mod
-		/*
-		 * double amount = attemptedAmount/(1.0+distance(0,0,vx,vy)*
-		 * EAT_WHILE_MOVING_INEFFICIENCY_MULTIPLIER); // The faster you're moving, the
-		 * less efficiently you can eat.
-		 */
-
 		if (amount < 0) {
-			ModLoader.creatureEatBehavior.creatureFailToEatFromTile(this, coveredTile, amount, attemptedAmount,
-					timeStep);
-
-			// the below original code is now part of a default mod
-			/*
-			 * dropEnergy(-amount*timeStep);
-			 * loseEnergy(-attemptedAmount*EAT_ENERGY*timeStep);
-			 */
+			ModLoader.creatureEatBehavior.creatureFailToEatFromTile(this, coveredTile, amount, attemptedAmount, timeStep);
 		} else {
-
-			// this should go through the mod loader
 			ModLoader.creatureEatBehavior.creatureEatFromTile(this, coveredTile, amount, attemptedAmount, timeStep);
-
-			// the below original code is now part of a default mod
-			/*
-			 * double foodToEat =
-			 * coveredTile.foodLevel*(1-Math.pow((1-EAT_SPEED),amount*timeStep));
-			 * if(foodToEat > coveredTile.foodLevel){ foodToEat = coveredTile.foodLevel; }
-			 * coveredTile.removeFood(foodToEat, true); double foodDistance =
-			 * Math.abs(coveredTile.foodType-mouthHue); double multiplier =
-			 * 1.0-foodDistance/FOOD_SENSITIVITY; if(multiplier >= 0){
-			 * addEnergy(foodToEat*multiplier); }else{ loseEnergy(-foodToEat*multiplier); }
-			 * loseEnergy(attemptedAmount*EAT_ENERGY*timeStep);
-			 */
 		}
 	}
 
@@ -487,112 +289,24 @@ public class Creature extends SoftBody {
 		if (energyLost > 0) {
 			energyLost = Math.min(energyLost, energy);
 			energy -= energyLost;
-			// getRandomCoveredTile().addFood(energyLost, hue, true);
+			
 			ModLoader.creatureEatBehavior.creatureDepositFoodToTile(this, getRandomCoveredTile(), energyLost);
-
 		}
 	}
 
-//	public void see(double timeStep) {
-//		for (int k = 0; k < visionAngles.length; k++) {
-//			double visionStartX = px;
-//			double visionStartY = py;
-//			double visionTotalAngle = rotation + visionAngles[k];
-//
-//			double endX = getVisionEndX(k);
-//			double endY = getVisionEndY(k);
-//
-//			visionOccludedX[k] = endX;
-//			visionOccludedY[k] = endY;
-//			int c = getColorAt(endX, endY);
-//			visionResults[k * 3] = EvolvioMod.main.hue(c);
-//			visionResults[k * 3 + 1] = EvolvioMod.main.saturation(c);
-//			visionResults[k * 3 + 2] = EvolvioMod.main.brightness(c);
-//
-//			int tileX = 0;
-//			int tileY = 0;
-//			int prevTileX = -1;
-//			int prevTileY = -1;
-//			ArrayList<SoftBody> potentialVisionOccluders = new ArrayList<SoftBody>();
-//			for (int DAvision = 0; DAvision < visionDistances[k] + 1; DAvision++) {
-//				tileX = (int) (visionStartX + Math.cos(visionTotalAngle) * DAvision);
-//				tileY = (int) (visionStartY + Math.sin(visionTotalAngle) * DAvision);
-//				if (tileX != prevTileX || tileY != prevTileY) {
-//					addPVOs(tileX, tileY, potentialVisionOccluders);
-//					if (prevTileX >= 0 && tileX != prevTileX && tileY != prevTileY) {
-//						addPVOs(prevTileX, tileY, potentialVisionOccluders);
-//						addPVOs(tileX, prevTileY, potentialVisionOccluders);
-//					}
-//				}
-//				prevTileX = tileX;
-//				prevTileY = tileY;
-//			}
-//			double[][] rotationMatrix = new double[2][2];
-//			rotationMatrix[1][1] = rotationMatrix[0][0] = Math.cos(-visionTotalAngle);
-//			rotationMatrix[0][1] = Math.sin(-visionTotalAngle);
-//			rotationMatrix[1][0] = -rotationMatrix[0][1];
-//			double visionLineLength = visionDistances[k];
-//			for (int i = 0; i < potentialVisionOccluders.size(); i++) {
-//				SoftBody body = potentialVisionOccluders.get(i);
-//				double x = body.px - px;
-//				double y = body.py - py;
-//				double r = body.getRadius();
-//				double translatedX = rotationMatrix[0][0] * x + rotationMatrix[1][0] * y;
-//				double translatedY = rotationMatrix[0][1] * x + rotationMatrix[1][1] * y;
-//				if (Math.abs(translatedY) <= r) {
-//					if ((translatedX >= 0 && translatedX < visionLineLength && translatedY < visionLineLength)
-//							|| distance(0, 0, translatedX, translatedY) < r
-//							|| distance(visionLineLength, 0, translatedX, translatedY) < r) { // YES! There is an
-//																								// occlussion.
-//						visionLineLength = translatedX - Math.sqrt(r * r - translatedY * translatedY);
-//						visionOccludedX[k] = visionStartX + visionLineLength * Math.cos(visionTotalAngle);
-//						visionOccludedY[k] = visionStartY + visionLineLength * Math.sin(visionTotalAngle);
-//						visionResults[k * 3] = body.hue;
-//						visionResults[k * 3 + 1] = body.saturation;
-//						visionResults[k * 3 + 2] = body.brightness;
-//					}
-//				}
-//			}
-//		}
-//	}
-//
 	public int getColorAt(double x, double y) {
 		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
-			// return board.tiles[(int) (x)][(int) (y)].getColor();
 			return ModLoader.tileDrawer.getColor(board.tiles[(int) (x)][(int) (y)]);
 		} else {
-			return board.BACKGROUND_COLOR;
+			return ModLoader.tileDrawer.getBackgroundColor();
 		}
 	}
-//
-//	public double distance(double x1, double y1, double x2, double y2) {
-//		return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-//	}
-//
-//	public void addPVOs(int x, int y, ArrayList<SoftBody> PVOs) {
-//		if (x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
-//			for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
-//				SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
-//				if (!PVOs.contains(newCollider) && newCollider != this) {
-//					PVOs.add(newCollider);
-//				}
-//			}
-//		}
-//	}
 
 	public void returnToEarth() {
 		int pieces = 20;
-		double radius = (float) getRadius();
 		for (int i = 0; i < pieces; i++) {
-			// getRandomCoveredTile().addFood(energy / pieces, hue, true);
 			ModLoader.creatureEatBehavior.creatureDepositFoodToTile(this, getRandomCoveredTile(), energy / pieces);
-			// TODO: this function should go in CreatureEatBehavior
 		}
-//		for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
-//			for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
-//				board.softBodiesInPositions[x][y].remove(this);
-//			}
-//		}
 		
 		board.creatureQuadTree.remove(collisionBox);
 		if (board.selectedCreature == this) {
@@ -800,7 +514,6 @@ public class Creature extends SoftBody {
 	}
 
 	public void applyMotions(double timeStep) {
-//		if (getRandomCoveredTile().fertility > 1) {
 		if (getRandomCoveredTile().isWater()) {
 			loseEnergy(SWIM_ENERGY * energy);
 		}
@@ -856,28 +569,6 @@ public class Creature extends SoftBody {
 		brightness = Math.min(Math.max(set, 0), 1);
 	}
 
-	/*
-	 * public void setVisionAngle(double set){ visionAngle =
-	 * set;//Math.min(Math.max(set,-Math.PI/2),Math.PI/2); while(visionAngle <
-	 * -Math.PI){ visionAngle += Math.PI*2; } while(visionAngle > Math.PI){
-	 * visionAngle -= Math.PI*2; } } public void setVisionDistance(double set){
-	 * visionDistance = Math.min(Math.max(set,0),MAX_VISION_DISTANCE); }
-	 */
-	/*
-	 * public double getVisionStartX(){ return px;//+getRadius()*Math.cos(rotation);
-	 * } public double getVisionStartY(){ return
-	 * py;//+getRadius()*Math.sin(rotation); }
-	 */
-//	public double getVisionEndX(int i) {
-//		double visionTotalAngle = rotation + visionAngles[i];
-//		return px + visionDistances[i] * Math.cos(visionTotalAngle);
-//	}
-//
-//	public double getVisionEndY(int i) {
-//		double visionTotalAngle = rotation + visionAngles[i];
-//		return py + visionDistances[i] * Math.sin(visionTotalAngle);
-//	}
-
 	public double getEnergyLevel() {
 		return energy;
 	}
@@ -890,66 +581,133 @@ public class Creature extends SoftBody {
 		return board.avatar == this;
 	}
 	
-	public String toString() {
+	public List<CreaturePeripheral> getPeripherals() {
+		return peripherals;
+	}
+	
+	public String makeString() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("+|- Name: " + name + "\n");
-		s.append("+|- Parents: " + parents + "\n");
+		s.append("Record of creature " + name + "\n");
+		s.append("\n");
+		s.append("+|- Name:\n" + name + "\n");
+		s.append("+|- Parents:\n" + parents + "\n");
 		
-		s.append("+|- Gen: " + gen + "\n");
-		s.append("+|- ID: " + id + "\n");
+		s.append("+|- Gen:\n" + gen + "\n");
+		s.append("+|- ID:\n" + id + "\n");
 
 		s.append("\n");
 		
-		s.append("+|- SoftBody Data\n");
+		s.append("+|- SoftBody Data:\n");
 		s.append(super.makeString());
-		s.append("+|- \\SoftBody Data\n");
+		s.append("\n");
 		
 		s.append("\n");
 		
-		s.append("+|- Brain\n");
+		s.append("+|- Brain:\n");
 		s.append(brain.makeString());
-		s.append("+|- \\Brain\n");
+		s.append("\n");
 		
 		s.append("\n");
 		
-		s.append("+|- Attributes\n");
+		s.append("+|- Attributes:\n");
 		for(Entry<String, CreatureAttribute> ent : attributes.entrySet()) {
-			s.append("-|+" + ent.getKey() + ":" + ent.getValue().getClass().getCanonicalName() + "\n");
+			s.append("-|+" + ent.getValue().getClass().getCanonicalName() + ":" + ent.getKey() + "\n");
 			s.append(ent.getValue().makeString());
 			s.append("\n");
 		}
-		s.append("+|- \\Attributes\n");
+		s.append("\n");
 		
-		s.append("+|- Actions\n");
+		s.append("+|- Actions:\n");
 		for(CreatureAction a : actions) {
 			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
-			s.append(a.toString());
+//			s.append(a.makeString());
 			s.append("\n");
 		}
-		s.append("+|- \\Actions\n");
+		s.append("\n");
 		
-		s.append("+|- Peripherals\n");
+		s.append("+|- Peripherals:\n");
 		for(CreaturePeripheral a : peripherals) {
 			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
-			s.append(a.toString());
+//			s.append(a.makeString());
 			s.append("\n");
 		}
-		s.append("+|- \\Peripherals\n");
+		s.append("\n");
 		
-		s.append("+|- FeatureDrawers\n");
+		s.append("+|- FeatureDrawers:\n");
 		for(CreatureFeatureDrawer a : featureDrawers) {
-			s.append("-|+" + a.getClass().getCanonicalName() + "\n");
-			s.append(a.toString());
+			s.append("-|+" + a.getClass().getCanonicalName()+"\n");
+//			s.append(a.makeString());
 			s.append("\n");
 		}
-		s.append("+|- \\FeatureDrawers\n");
+		s.append("\n");
 		
 		return s.toString();
 	}
 	
-	public Creature fromString(String s) {
-		//TODO: this
-		return null;
+	public static Creature fromString(String creatureString) throws Exception {
+		String[] segments = creatureString.split("\n\\+\\|- \\w+:\n");
+		
+		Creature revived = (Creature) SoftBody.fromString(segments[5]);
+		
+		revived.name = segments[1];
+		revived.parents = segments[2];
+		revived.gen = Integer.parseInt(segments[3]);
+		revived.id = Integer.parseInt(segments[4]);
+		
+		revived.brain = ModLoader.brainModel.newInstance().fromString(segments[6]);
+		
+		String[] attributeStrings = segments[7].split("-\\|\\+");
+		for(String as : attributeStrings) {
+			int endOfHeading = as.indexOf("\n");
+			String heading = as.substring(0, endOfHeading);
+			String body = as.substring(endOfHeading+1);
+			
+			int headingSplit = heading.indexOf(":");
+			String cannonicalName = heading.substring(0, headingSplit);
+			
+			Class<CreatureAttribute> attributeClass = (Class<CreatureAttribute>) ModLoader.loadClass(cannonicalName);
+			CreatureAttribute revivedAttr = attributeClass.newInstance().fromString(body);
+			
+			revived.attributes.put(revivedAttr.getName(), revivedAttr);
+		}
+		
+		String[] actionStrings = segments[8].split("-\\|\\+");
+		for(String as : actionStrings) {
+			int endOfHeading = as.indexOf("\n");
+			String heading = as.substring(0, endOfHeading);
+			String body = as.substring(endOfHeading+1);
+			
+			Class<CreatureAction> actionClass = (Class<CreatureAction>) ModLoader.loadClass(heading);
+			CreatureAction revivedAct = actionClass.newInstance();
+			
+			revived.actions.add(revivedAct);
+		}
+		
+		String[] peripheralStrings = segments[9].split("-\\|\\+");
+		for(String ps : peripheralStrings) {
+			int endOfHeading = ps.indexOf("\n");
+			String heading = ps.substring(0, endOfHeading);
+			String body = ps.substring(endOfHeading+1);
+			
+			Class<CreaturePeripheral> peripheralClass = (Class<CreaturePeripheral>) ModLoader.loadClass(heading);
+			CreaturePeripheral revivedPer = peripheralClass.newInstance();
+			
+			revived.peripherals.add(revivedPer);
+		}
+		
+		String[] drawerStrings = segments[10].split("-\\|\\+");
+		for(String ds : drawerStrings) {
+			int endOfHeading = ds.indexOf("\n");
+			String heading = ds.substring(0, endOfHeading);
+			String body = ds.substring(endOfHeading+1);
+			
+			Class<CreatureFeatureDrawer> drawerClass = (Class<CreatureFeatureDrawer>) ModLoader.loadClass(heading);
+			CreatureFeatureDrawer revivedDraw = drawerClass.newInstance();
+			
+			revived.featureDrawers.add(revivedDraw);
+		}
+		
+		return revived;
 	}
 }

@@ -673,7 +673,7 @@ public final class ModLoader {
 //		EvolvioMod.finishStartup(); // temp
 	}
 
-	private static Class<?> loadClass(String className) throws ClassNotFoundException {
+	static Class<?> loadClass(String className) throws ClassNotFoundException {
 //		return Class.forName(className);
 		try {
 			URLClassLoader urlClassLoader = URLClassLoader.newInstance(new URL[] {

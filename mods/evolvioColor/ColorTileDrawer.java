@@ -12,7 +12,7 @@ public class ColorTileDrawer implements TileDrawer, Button {
     public final int blackColor = EvolvioMod.main.color(0,1,0);
     public final int waterColor = barrenColor;//EvolvioMod.main.color(0,0,0);
     // the original water color may have been confusing the creatures, as super firtile was
-    // the same as water - the epitome of infertile. So I changed it up and made water color the
+    // the same as water - even though water was the epitome of infertile. So I changed it up and made water color the
     // same as barren - aka infirtile
     
     public static boolean drawTileBorders = false;
@@ -27,7 +27,7 @@ public class ColorTileDrawer implements TileDrawer, Button {
 		
 		float tileSize = drawTileBorders? 1 : 1.1f;
 		int landColor = getColor(t);
-		if(t.isWater()) landColor = EvolvioMod.main.color(0); // draw water as black for user clairity, even though creatures see it as white
+		//if(t.isWater()) landColor = EvolvioMod.main.color(0); // draw water as black for user clairity, even though creatures see it as white
 		
 		EvolvioMod.main.fill(landColor);
 		EvolvioMod.main.rect(t.getPosX() * scaleUp, t.getPosY() * scaleUp, tileSize * scaleUp, tileSize * scaleUp);
@@ -126,4 +126,10 @@ public class ColorTileDrawer implements TileDrawer, Button {
 	@Override public float getFlashAlpha() { return 0; }
 
 	@Override public void init() { }
+	
+
+	@Override
+	public int getBackgroundColor() {
+		return waterColor;
+	}
 }

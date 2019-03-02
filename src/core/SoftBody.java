@@ -26,23 +26,13 @@ public class SoftBody {
 	public final float COLLISION_FORCE = 0.01f;
 	public final float FIGHT_RANGE = 2.0f;
 	public double fightLevel = 0;
-
-	// SBIP stands for soft bodies in positions
-//	int prevSBIPMinX;
-//	int prevSBIPMinY;
-//	int prevSBIPMaxX;
-//	int prevSBIPMaxY;
-//	int SBIPMinX;
-//	int SBIPMinY;
-//	int SBIPMaxX;
-//	int SBIPMaxY;
 	
 	SoftBodyRectangleObject collisionBox;
-	
-//	ArrayList<SoftBody> colliders;
 	List<SoftBody> colliders = new ArrayList<>();
 	Board board;
 
+	private SoftBody() {}
+	
 	public SoftBody(double tpx, double tpy, double tvx, double tvy, double tenergy, double tdensity, double thue,
 			double tsaturation, double tbrightness, Board tb, double bt) {
 		px = tpx;
@@ -68,40 +58,6 @@ public class SoftBody {
 		tb.creatureQuadTree.insert(collisionBox);
 	}
 
-//	public void setSBIP(boolean shouldRemove) {
-////		double radius = getRadius() * FIGHT_RANGE;
-////		prevSBIPMinX = SBIPMinX;
-////		prevSBIPMinY = SBIPMinY;
-////		prevSBIPMaxX = SBIPMaxX;
-////		prevSBIPMaxY = SBIPMaxY;
-////		SBIPMinX = xBound((int) (Math.floor(px - radius)));
-////		SBIPMinY = yBound((int) (Math.floor(py - radius)));
-////		SBIPMaxX = xBound((int) (Math.floor(px + radius)));
-////		SBIPMaxY = yBound((int) (Math.floor(py + radius)));
-////		if (prevSBIPMinX != SBIPMinX || prevSBIPMinY != SBIPMinY || prevSBIPMaxX != SBIPMaxX
-////				|| prevSBIPMaxY != SBIPMaxY) {
-////			if (shouldRemove) {
-////				for (int x = prevSBIPMinX; x <= prevSBIPMaxX; x++) {
-////					for (int y = prevSBIPMinY; y <= prevSBIPMaxY; y++) {
-////						if (x < SBIPMinX || x > SBIPMaxX || y < SBIPMinY || y > SBIPMaxY) {
-////							board.softBodiesInPositions[x][y].remove(this);
-////						}
-////					}
-////				}
-////			}
-////			for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
-////				for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
-////					if (x < prevSBIPMinX || x > prevSBIPMaxX || y < prevSBIPMinY || y > prevSBIPMaxY) {
-////						board.softBodiesInPositions[x][y].add(this);
-////					}
-////				}
-////			}
-////		}
-//		
-//		// this function also updates the values of collisionBox
-//		board.creatureQuadTree.update(collisionBox, new SoftBodyRectangleObject(this));
-//	}
-
 	public int xBound(int x) {
 		return Math.min(Math.max(x, 0), board.boardWidth - 1);
 	}
@@ -121,18 +77,6 @@ public class SoftBody {
 	}
 
 	public void collide(double timeStep) {
-//		colliders = new ArrayList<SoftBody>(0);
-//		for (int x = SBIPMinX; x <= SBIPMaxX; x++) {
-//			for (int y = SBIPMinY; y <= SBIPMaxY; y++) {
-//				for (int i = 0; i < board.softBodiesInPositions[x][y].size(); i++) {
-//					SoftBody newCollider = (SoftBody) board.softBodiesInPositions[x][y].get(i);
-//					if (!colliders.contains(newCollider) && newCollider != this) {
-//						colliders.add(newCollider);
-//					}
-//				}
-//			}
-//		}
-		
 		List<RectangleObject> c = board.creatureQuadTree.search(collisionBox);
 		colliders.clear();
 		for(RectangleObject o : c) {
@@ -147,8 +91,6 @@ public class SoftBody {
 			double combinedRadius = getRadius() + collider.getRadius();
 			if (distance < combinedRadius) {
 				double force = combinedRadius * COLLISION_FORCE * (STANDING_COLLISION_FORCE+magnitude(vx - collider.vx, vy - collider.vy));
-				//setVx(vx + ((px - collider.px) / distance) * force / getMass());
-				//setVy(vy + ((py - collider.py) / distance) * force / getMass());
 				collision(this,     force, distance, collider.px, collider.py);
 				collision(collider, force, distance, this.px,     this.py);
 				
@@ -173,7 +115,6 @@ public class SoftBody {
 		py = yBodyBound(py + vy * timeStep);
 		vx *= Math.max(0, 1 - FRICTION / getMass());
 		vy *= Math.max(0, 1 - FRICTION / getMass());
-		//setSBIP(true);
 		try {
 			board.creatureQuadTree.update(collisionBox, new SoftBodyRectangleObject(this));
 		} catch (Exception e) {
@@ -234,8 +175,29 @@ public class SoftBody {
 		return s.toString();
 	}
 	
-	public SoftBody fromString(String s) {
-		return null;
+	public static SoftBody fromString(String softbodyString) throws Exception {
+		SoftBody revived = new SoftBody();
+		softbodyString = softbodyString.replaceAll("\n", "");
+		String[] features = softbodyString.split("\\w+: ");
+		
+		String[] locs = features[1].split(",");
+		revived.px = Double.parseDouble(locs[0].substring(1));
+		revived.py = Double.parseDouble(locs[1].substring(1,locs[1].length()-1));
+		
+		String[] vels = features[2].split(",");
+		revived.vx = Double.parseDouble(vels[0].substring(1));
+		revived.vy = Double.parseDouble(vels[1].substring(1,locs[1].length()-1));
+		
+		String[] cols = features[3].split(",");
+		revived.hue        = Double.parseDouble(cols[0].substring(1));
+		revived.saturation = Double.parseDouble(cols[1].substring(1));
+		revived.brightness = Double.parseDouble(cols[2].substring(1,cols[2].length()-1));
+		
+		revived.energy    = Double.parseDouble(features[4]);
+		revived.density   = Double.parseDouble(features[5]);
+		revived.birthTime = Double.parseDouble(features[6]);
+		
+		return revived;
 	}
 	
 	public void setVx(double newVx) {

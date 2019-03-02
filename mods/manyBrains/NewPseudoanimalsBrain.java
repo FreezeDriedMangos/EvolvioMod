@@ -143,7 +143,7 @@ public class NewPseudoanimalsBrain implements Brain {
 //		return (2.0 / (1.0 - Math.pow(Math.E, -x))) - 1.0;
 //	}
 
-	
+	// TODO: axons don't seem to actually fire
 	@Override
 	public double getOutput(String name) { // neuron values are on the range [0,1], but this function should return on the range [-1,1]
 		return 2.0*(neurons[outputIndecies.get(name)]-0.5);

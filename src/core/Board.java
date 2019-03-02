@@ -37,7 +37,7 @@ public class Board {
 	final float ROCK_DENSITY = 5;
 	final float OBJECT_TIMESTEPS_PER_YEAR = 100;
 	final int ROCK_COLOR = EvolvioMod.main.color(0, 0, 0.5f);
-	final int BACKGROUND_COLOR = EvolvioMod.main.color(0, 0, 0.1f);
+	//final int BACKGROUND_COLOR = EvolvioMod.main.color(0, 0, 0.1f);
 	final float MINIMUM_SURVIVABLE_SIZE = 0.06f;
 	public final float CREATURE_STROKE_WEIGHT = 0.6f;
 	//public ArrayList[][] softBodiesInPositions;
@@ -180,7 +180,7 @@ public class Board {
 	}
 
 	public void drawBlankBoard(float scaleUp) {
-		EvolvioMod.main.fill(BACKGROUND_COLOR);
+		EvolvioMod.main.fill(ModLoader.tileDrawer.getBackgroundColor());
 		EvolvioMod.main.rect(0, 0, scaleUp * boardWidth, scaleUp * boardHeight);
 	}
 

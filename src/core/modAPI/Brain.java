@@ -72,8 +72,8 @@ public interface Brain {
 	public String makeString();
 	
 	/**
-	 * This method is used to revive brains essentially from cryosleep
-	 * @param s a string previously returned from toString()
+	 * This method is used to read a brain from file
+	 * @param s a string previously returned from makeString()
 	 * @return the brain revived from the string representation s
 	 */
 	public Brain fromString(String s);
